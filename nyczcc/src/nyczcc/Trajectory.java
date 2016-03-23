@@ -9,10 +9,14 @@ public class Trajectory {
 	private double plong;
 	private double dlat;
 	private double dlong;
+	private int id;
+	private static int gid;
+	
 	
 	public Trajectory(String pickupt, String dropofft, double plat, double plong, double dlat, double dlong)
 	{
-		
+		id = gid;
+		gid++;
 	}
 	
 	public LocalDateTime getPickUpTime(){
@@ -38,6 +42,11 @@ public class Trajectory {
 	public double getDropOffLongitude(){
 		return dlong;
 	}
+	
+	public String getDatabaseTypes(){
+		return "(ID,pickupt,dropofft,plat,plong,dlat,dlong)";
+	}
+	
 	
 
 }
