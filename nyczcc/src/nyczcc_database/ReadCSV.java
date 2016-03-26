@@ -21,7 +21,7 @@ public class ReadCSV {
 		BufferedReader br = new BufferedReader(new FileReader(csvLocation));
 		String line;
 		boolean first = true;
-		HashMap<String, Integer> valmap = new HashMap<>();
+		ArrayList<Integer> valmap = new ArrayList<>();
 		while ( (line=br.readLine()) != null)
 		{
 		         String[] values = line.split(","); 
@@ -34,7 +34,7 @@ public class ReadCSV {
 		        		for (int y = 0; y < values.length; y++)
 		        		{
 		        			if (values[y].compareTo(colnames[x]) == 0){
-		        				valmap.put(values[y], y);
+		        				valmap.add(y);
 		        			}
 		        		}
 		        	}
@@ -43,12 +43,12 @@ public class ReadCSV {
 		        
 		         }
 		         else{
-		        	 HashMap<String, String> datmap = new HashMap<>();
-		        	 for (String col : valmap.keySet())
+		        	 ArrayList<String> datmap = new ArrayList<>();
+		        	 for (int x = 0; x < valmap.size(); x++)
 		        	 {
-		        		 datmap.put(col, values[valmap.get(col)]);
+		        		 datmap.add(values[valmap.get(x)]);
 		        	 }
-		        	 
+		        	 datmap.add("0");
 		        	 System.out.println("Inserting Values: " + datmap);
 		        	 c.insertValues(datmap);
 		         }

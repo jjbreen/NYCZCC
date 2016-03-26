@@ -14,12 +14,18 @@ public class TrajectorySchema {
 		bob.append("plong REAL,");
 		bob.append("dlat REAL,");
 		bob.append("dlong REAL");
+		bob.append("clusterid INTEGER");
 		return bob.toString();
 	}
 	
 	public static String[] getCSVNames()
 	{
 		return new String[]{"tpep_pickup_datetime", "tpep_dropoff_datetime", "pickup_latitude", "pickup_longitude", "dropoff_latitude", "dropoff_longitude"};
+	}
+	
+	public static String getInsertDBNames()
+	{
+		return "(pickupt, dropofft, plat, plong, dlat, dlong, clusterid)";
 	}
 	
 	

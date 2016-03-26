@@ -88,6 +88,8 @@ public class SQLiteDBC {
 			StringBuilder bob = new StringBuilder();
 			bob.append("INSERT INTO ");
 			bob.append(TrajectorySchema.getTableName());
+			bob.append(" ");
+			bob.append(TrajectorySchema.getInsertDBNames());
 			bob.append(" VALUES('");
 			for (int x = 0; x < a.size(); x++)
 			{
@@ -98,6 +100,9 @@ public class SQLiteDBC {
 				}
 			}
 			bob.append("')");
+			
+			System.out.println(bob.toString());
+			
 			stmt.executeUpdate(bob.toString());
 		}catch(Exception e)
 		{
@@ -113,6 +118,8 @@ public class SQLiteDBC {
 			StringBuilder bob = new StringBuilder();
 			bob.append("INSERT INTO ");
 			bob.append(TrajectorySchema.getTableName());
+			bob.append(" ");
+			bob.append(TrajectorySchema.getInsertDBNames());
 			bob.append(" VALUES('");
 			
 			int x = 0;
@@ -126,6 +133,10 @@ public class SQLiteDBC {
 				x++;
 			}
 			bob.append("')");
+			
+
+			System.out.println(bob.toString());
+			
 			stmt.executeUpdate(bob.toString());
 			System.out.println("Insert Successful!");
 		}catch (Exception e)
@@ -136,16 +147,85 @@ public class SQLiteDBC {
 		this.close();
 	}
 	
+	public ArrayList<Trajectory> retrieveRows(int from, int to)
+	{
+		ArrayList<Trajectory> tlist = new ArrayList<>();
+		this.connect();
+		try{
+			StringBuilder sql = new StringBuilder();
+			sql.append("SELECT rowid, * FROM ");
+			sql.append(TrajectorySchema.getTableName());
+			sql.append(" WHERE ROWID >= ");
+			sql.append(from);
+			sql.append(" AND ROWID <= ");
+			sql.append(to);
+			
+			ResultSet rs = stmt.executeQuery(sql.toString());
+			while (rs.next())
+			{
+				
+				int rowid = rs.getInt("rowid");
+				double plat = rs.getDouble("plat");
+				double plong = rs.getDouble("plong");
+				double dlat = rs.getDouble("dlat");
+				double dlong = rs.getDouble("dlong");
+				String pickupt = rs.getString("pickupt");
+				String dropofft = rs.getString("dropofft");
+				int clusterid = rs.getInt("clusterid");
+				
+				Trajectory t = new Trajectory(rowid, pickupt, dropofft, plat, plong, dlat, dlong, clusterid); 
+				System.out.println(t);
+				tlist.add(t);
+			}
+			
+		}catch (Exception e){
+			System.out.println("Failed to retrieve values from database");
+			System.out.println(e);
+		}
+		this.close();
+		return tlist;
+	}
+	
+	public void updateTrajectory(ArrayList<Trajectory> tlist)
+	{
+		for (int x = 0; x < tlist.size(); x++)
+		{
+			this.connect();
+			try{
+				if (tlist.get(x).getRowID() == -1){
+					insertValues(tlist.get(x).getDatabaseValueList());
+					return;
+				}
+				StringBuilder bob = new StringBuilder();
+				bob.append("UPDATE ");
+				bob.append(TrajectorySchema.getTableName());
+				bob.append(" SET ");
+				bob.append(tlist.get(x).DBNameValuePair());
+				bob.append(" WHERE ROWID=");
+				bob.append(tlist.get(x).getRowID());
+				
+				stmt.executeUpdate(bob.toString());
+				System.out.println("Succesfully Updated Row: " + tlist.get(x).getRowID());
+			}catch (Exception e)
+			{
+				System.out.println("Failed to Update Trajectory: " + tlist.get(x));
+			}
+			
+			this.close();
+		}
+	}
+	
 	public static void main(String [] args)
 	{
 		SQLiteDBC db = new SQLiteDBC();
 		db.createTable();
-		ReadCSV reader = new ReadCSV("/home/jjbreen/Git/NYCZCC/data/yellow_tripdata_2015-01.csv");
-		try {
-			reader.importCSVtoDB(db);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		ReadCSV reader = new ReadCSV("/home/jjbreen/Git/NYCZCC/data/yellow_tripdata_2015-01.csv");
+//		try {
+//			reader.importCSVtoDB(db);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		db.retrieveRows(10,20);
 	}
 }
