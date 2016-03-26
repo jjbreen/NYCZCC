@@ -46,6 +46,26 @@ public class Trajectory {
 	public String getDatabaseTypes(){
 		return "(ID,pickupt,dropofft,plat,plong,dlat,dlong)";
 	}
+
+	public boolean isVisited() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setVisited(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setCluster(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getCluster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 
