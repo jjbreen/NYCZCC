@@ -49,6 +49,7 @@ public class ReadCSV {
 		        		 datmap.add(values[valmap.get(x)]);
 		        	 }
 		        	 datmap.add("0");
+		        	 datmap.add("False");
 		        	 System.out.println("Inserting Values: " + datmap);
 		        	 c.insertValues(datmap);
 		         }

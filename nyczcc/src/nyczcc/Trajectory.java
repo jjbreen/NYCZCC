@@ -13,8 +13,9 @@ public class Trajectory {
 	private double dlong;
 	private int id;
 	private int clusterid;
+	private boolean visited;
 	
-	public Trajectory(String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid)
+	public Trajectory(String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, boolean visited)
 	{
 		id = -1;
 		
@@ -28,9 +29,10 @@ public class Trajectory {
 		this.dlat = dlat;
 		this.dlong = dlong;
 		this.clusterid = clusterid;
+		this.visited = visited;
 	}
 	
-	public Trajectory(int rowid, String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid)
+	public Trajectory(int rowid, String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, boolean visited)
 	{
 		id = rowid;
 		
@@ -44,6 +46,7 @@ public class Trajectory {
 		this.dlat = dlat;
 		this.dlong = dlong;
 		this.clusterid = clusterid;
+		this.visited = visited;
 	}
 	
 	public LocalDateTime getPickUpTime(){
@@ -76,11 +79,11 @@ public class Trajectory {
 	}
 	
 	public String getDatabaseTypes(){
-		return "(pickupt,dropofft,plat,plong,dlat,dlong,clusterid)";
+		return "(pickupt,dropofft,plat,plong,dlat,dlong,clusterid,visited)";
 	}
 	
 	public String getDatabaseValues(){
-		return "(" + pickupt.toString() + "," + dropofft.toString() + "," + plat + "," + plong + "," + dlat + "," + dlong + "," + clusterid +")";
+		return "(" + pickupt.toString() + "," + dropofft.toString() + "," + plat + "," + plong + "," + dlat + "," + dlong + "," + clusterid + "," + visited  + ")";
 	}
 	
 	public ArrayList<String> getDatabaseValueList()
@@ -93,6 +96,7 @@ public class Trajectory {
 		dblist.add(dlat+"");
 		dblist.add(dlong+"");
 		dblist.add(clusterid+"");
+		dblist.add(visited+"");
 		
 		return dblist;
 	}
@@ -100,12 +104,12 @@ public class Trajectory {
 	public String DBNameValuePair()
 	{
 		return "pickupt=" + pickupt.toString() +",dropofft=" + dropofft.toString() + ",plat=" + plat +",plong=" + plong +
-				",dlat="+dlat+",dlong=" + dlong + ",clusterid=" + clusterid;
+				",dlat="+dlat+",dlong=" + dlong + ",clusterid=" + clusterid + ",visited=" + visited;
 	}
 	
 	public String toString()
 	{
-		return "Trajectory: " + id + " Cluster: " +  clusterid + " - Pick Up Time: " + pickupt.toString() + " Drop Off Time: " + dropofft.toString() + "\n\tPick Up Latitude: " + plat + 
+		return "Trajectory: " + id + " Cluster: " +  clusterid + " Visited: " + visited + " - Pick Up Time: " + pickupt.toString() + " Drop Off Time: " + dropofft.toString() + "\n\tPick Up Latitude: " + plat + 
 				" Pick Up Longitude: " + plong + "\n\tDrop Off Latitude: " + dlat + " Drop Off Longitude: " + dlong;
 	}
 

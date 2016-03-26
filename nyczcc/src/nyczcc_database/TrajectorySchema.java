@@ -13,8 +13,9 @@ public class TrajectorySchema {
 		bob.append("plat REAL,");
 		bob.append("plong REAL,");
 		bob.append("dlat REAL,");
-		bob.append("dlong REAL");
-		bob.append("clusterid INTEGER");
+		bob.append("dlong REAL,");
+		bob.append("clusterid INTEGER,");
+		bob.append("visited BOOLEAN");
 		return bob.toString();
 	}
 	
@@ -25,7 +26,7 @@ public class TrajectorySchema {
 	
 	public static String getInsertDBNames()
 	{
-		return "(pickupt, dropofft, plat, plong, dlat, dlong, clusterid)";
+		return "(pickupt, dropofft, plat, plong, dlat, dlong, clusterid, visited)";
 	}
 	
 	

@@ -172,8 +172,9 @@ public class SQLiteDBC {
 				String pickupt = rs.getString("pickupt");
 				String dropofft = rs.getString("dropofft");
 				int clusterid = rs.getInt("clusterid");
+				boolean visited = rs.getBoolean("visited");
 				
-				Trajectory t = new Trajectory(rowid, pickupt, dropofft, plat, plong, dlat, dlong, clusterid); 
+				Trajectory t = new Trajectory(rowid, pickupt, dropofft, plat, plong, dlat, dlong, clusterid, visited); 
 				System.out.println(t);
 				tlist.add(t);
 			}
@@ -182,6 +183,7 @@ public class SQLiteDBC {
 			System.out.println("Failed to retrieve values from database");
 			System.out.println(e);
 		}
+		System.out.println("Finished Retrieving!");
 		this.close();
 		return tlist;
 	}
@@ -194,7 +196,7 @@ public class SQLiteDBC {
 			try{
 				if (tlist.get(x).getRowID() == -1){
 					insertValues(tlist.get(x).getDatabaseValueList());
-					return;
+					continue;
 				}
 				StringBuilder bob = new StringBuilder();
 				bob.append("UPDATE ");
@@ -226,6 +228,6 @@ public class SQLiteDBC {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		db.retrieveRows(10,20);
+		db.retrieveRows(0,20000);
 	}
 }
