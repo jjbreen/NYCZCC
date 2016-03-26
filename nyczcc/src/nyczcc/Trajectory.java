@@ -108,6 +108,26 @@ public class Trajectory {
 		return "Trajectory: " + id + " Cluster: " +  clusterid + " - Pick Up Time: " + pickupt.toString() + " Drop Off Time: " + dropofft.toString() + "\n\tPick Up Latitude: " + plat + 
 				" Pick Up Longitude: " + plong + "\n\tDrop Off Latitude: " + dlat + " Drop Off Longitude: " + dlong;
 	}
+
+	public boolean isVisited() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setVisited(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setCluster(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getCluster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 
