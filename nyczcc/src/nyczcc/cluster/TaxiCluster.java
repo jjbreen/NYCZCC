@@ -1,5 +1,6 @@
 package nyczcc.cluster;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -51,9 +52,31 @@ public class TaxiCluster {
 		}
 	}
 
-	private static Queue<Trajectory> getNeighbors(Trajectory p, Double eps) {
+	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
+		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
+		// TODO for each point in db
+		Trajectory x = null;
+		double dist = calcDTheta(t, x) + calcDPerp(t, x) + calcDPara(t, x);
+		if(dist < eps){
+			neighbors.add(x);
+		}
 
-		return null;
+		return neighbors;
+	}
+
+	private static int calcDPara(Trajectory t, Trajectory x) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private static int calcDPerp(Trajectory t, Trajectory x) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private static int calcDTheta(Trajectory t, Trajectory x) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
