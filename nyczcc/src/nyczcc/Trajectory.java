@@ -15,11 +15,14 @@ public class Trajectory {
 	private int clusterid;
 	private boolean visited;
 	
-	public Trajectory(String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, boolean visited)
+	//LocalDateTime Formatter. Use this to parse from and to the database
+	DateTimeFormatter formatter;
+	
+	public Trajectory(String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, int visited)
 	{
 		id = -1;
 		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		this.pickupt = LocalDateTime.parse(pickupt, formatter);
 		this.dropofft = LocalDateTime.parse(dropofft, formatter);
 		
@@ -29,14 +32,14 @@ public class Trajectory {
 		this.dlat = dlat;
 		this.dlong = dlong;
 		this.clusterid = clusterid;
-		this.visited = visited;
+		this.visited = visited == 0 ? false : true;
 	}
 	
-	public Trajectory(int rowid, String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, boolean visited)
+	public Trajectory(int rowid, String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, int visited)
 	{
 		id = rowid;
 		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		this.pickupt = LocalDateTime.parse(pickupt, formatter);
 		this.dropofft = LocalDateTime.parse(dropofft, formatter);
 		
@@ -46,7 +49,7 @@ public class Trajectory {
 		this.dlat = dlat;
 		this.dlong = dlong;
 		this.clusterid = clusterid;
-		this.visited = visited;
+		this.visited = visited == 0 ? false : true;
 	}
 	
 	public LocalDateTime getPickUpTime(){
@@ -55,6 +58,14 @@ public class Trajectory {
 	
 	public LocalDateTime getDropOffTime(){
 		return dropofft;
+	}
+	
+	public String getPickUpTimeString(){
+		return pickupt.format(formatter);
+	}
+	
+	public String getDropOffTimeString(){
+		return dropofft.format(formatter);
 	}
 	
 	public double getPickUpLongitude(){
@@ -103,8 +114,8 @@ public class Trajectory {
 	
 	public String DBNameValuePair()
 	{
-		return "pickupt=" + pickupt.toString() +",dropofft=" + dropofft.toString() + ",plat=" + plat +",plong=" + plong +
-				",dlat="+dlat+",dlong=" + dlong + ",clusterid=" + clusterid + ",visited=" + visited;
+		return "pickupt='" + this.getPickUpTimeString() +"',dropofft='" + this.getDropOffTimeString() + "',plat='" + plat +"',plong='" + plong +
+				"',dlat='"+dlat+"',dlong='" + dlong + "',clusterid='" + clusterid + "', visited=" + this.intVisited();
 	}
 	
 	public String toString()
@@ -114,23 +125,23 @@ public class Trajectory {
 	}
 
 	public boolean isVisited() {
-		// TODO Auto-generated method stub
-		return false;
+		return visited;
+	}
+	
+	public int intVisited(){
+		return visited ? 1 : 0;
 	}
 
 	public void setVisited(boolean b) {
-		// TODO Auto-generated method stub
-		
+		this.visited = b;
 	}
 
-	public void setCluster(String string) {
-		// TODO Auto-generated method stub
-		
+	public void setCluster(String cid) {
+		//clusterid = cid;
 	}
 
 	public String getCluster() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";//clusterid;
 	}
 	
 	

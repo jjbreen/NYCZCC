@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import nyczcc.Trajectory;
 
@@ -81,7 +82,7 @@ public class SQLiteDBC {
 		
 	}
 	
-	public void insertValues(ArrayList<String> a)
+	public void insertValues(List<String> a)
 	{
 		this.connect();
 		try {
@@ -100,8 +101,6 @@ public class SQLiteDBC {
 				}
 			}
 			bob.append("')");
-			
-			System.out.println(bob.toString());
 			
 			stmt.executeUpdate(bob.toString());
 		}catch(Exception e)
@@ -172,7 +171,7 @@ public class SQLiteDBC {
 				String pickupt = rs.getString("pickupt");
 				String dropofft = rs.getString("dropofft");
 				int clusterid = rs.getInt("clusterid");
-				boolean visited = rs.getBoolean("visited");
+				int visited = rs.getInt("visited");
 				
 				Trajectory t = new Trajectory(rowid, pickupt, dropofft, plat, plong, dlat, dlong, clusterid, visited); 
 				System.out.println(t);
@@ -188,7 +187,7 @@ public class SQLiteDBC {
 		return tlist;
 	}
 	
-	public void updateTrajectory(ArrayList<Trajectory> tlist)
+	public void updateTrajectory(List<Trajectory> tlist)
 	{
 		for (int x = 0; x < tlist.size(); x++)
 		{
@@ -206,11 +205,15 @@ public class SQLiteDBC {
 				bob.append(" WHERE ROWID=");
 				bob.append(tlist.get(x).getRowID());
 				
+				System.out.println(bob.toString());
+				
 				stmt.executeUpdate(bob.toString());
 				System.out.println("Succesfully Updated Row: " + tlist.get(x).getRowID());
+				
 			}catch (Exception e)
 			{
 				System.out.println("Failed to Update Trajectory: " + tlist.get(x));
+				System.out.println(e);
 			}
 			
 			this.close();
@@ -228,6 +231,14 @@ public class SQLiteDBC {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		db.retrieveRows(0,20000);
+		ArrayList<Trajectory> t = db.retrieveRows(1,1);
+		for (int x = 0; x < t.size(); x++)
+		{
+			t.get(x).setVisited(true);
+		}
+		System.out.println(t.get(0));
+		
+		db.updateTrajectory(t);
+		db.retrieveRows(1,1);
 	}
 }
