@@ -11,15 +11,27 @@ import nyczcc_database.SQLiteDBC;
 public class TaxiCluster {
 
 	private static List<Trajectory> trajectories;
+	private static double thetaW = 100.0;
+	private static double paraW = 100.0;
+	private static double perpW = 100.0;
 
 	public static void main(String[] args) {
 
 		SQLiteDBC db = new SQLiteDBC();
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
+		
+		//reset the trajectories
+		trajectories.forEach(t -> {
+			t.setCluster(0);
+			t.setVisited(false);
+		});
 
-		double eps = 0.05;
-		int minPts = 5;
+		double eps = 2.0;
+		int minPts = 20;
+		
+		
+		
 		int clusterNum = 1;
 
 		for (Trajectory t : trajectories) {
@@ -39,6 +51,8 @@ public class TaxiCluster {
 		}
 
 		db.updateTrajectory(trajectories);
+		
+		trajectories.forEach(t -> System.out.println(t.getCluster()));
 
 	}
 
@@ -63,8 +77,11 @@ public class TaxiCluster {
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
 		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
 		for (Trajectory x : trajectories) {
-			double dist = calcDTheta(t, x) + calcDPerp(t, x) + calcDPara(t, x);
-			// System.out.println(dist);
+			double dTheta = calcDTheta(t, x);
+			double dPerp = calcDPerp(t, x);
+			double dPara = calcDPara(t, x);
+			double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
+			//System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
 			if (dist < eps) {
 				neighbors.add(x);
 			}
