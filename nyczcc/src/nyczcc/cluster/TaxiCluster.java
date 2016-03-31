@@ -6,7 +6,7 @@ import java.util.Queue;
 
 import nyczcc.Point;
 import nyczcc.Trajectory;
-import nyczcc_database.SQLiteDBC;
+import nyczcc.database.SQLiteDBC;
 
 public class TaxiCluster {
 
