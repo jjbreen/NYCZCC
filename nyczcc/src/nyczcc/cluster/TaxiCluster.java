@@ -11,7 +11,7 @@ import nyczcc_database.SQLiteDBC;
 public class TaxiCluster {
 
 	private static List<Trajectory> trajectories;
-	private static double thetaW = 100.0;
+	private static double thetaW = 1000.0;
 	private static double paraW = 100.0;
 	private static double perpW = 100.0;
 
