@@ -1,5 +1,6 @@
 package nyczcc_database;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -226,14 +227,14 @@ public class SQLiteDBC {
 	{
 		SQLiteDBC db = new SQLiteDBC();
 		db.createTable();
-//		ReadCSV reader = new ReadCSV("/home/jjbreen/Git/NYCZCC/data/yellow_tripdata_2015-01.csv");
-//		try {
-//			reader.importCSVtoDB(db);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		ArrayList<Trajectory> t = db.retrieveRows(1,1);
+		ReadCSV reader = new ReadCSV("data/yellow_tripdata_2015-01.csv");
+		try {
+			reader.importCSVtoDB(db);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*ArrayList<Trajectory> t = db.retrieveRows(1,1);
 		for (int x = 0; x < t.size(); x++)
 		{
 			t.get(x).setVisited(true);
@@ -241,6 +242,6 @@ public class SQLiteDBC {
 		System.out.println(t.get(0));
 		
 		db.updateTrajectory(t);
-		db.retrieveRows(1,1);
+		db.retrieveRows(1,1);*/
 	}
 }
