@@ -2,7 +2,9 @@ package nyczcc.cluster;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import nyczcc.Point;
 import nyczcc.Trajectory;
@@ -11,6 +13,10 @@ import nyczcc.database.SQLiteDBC;
 public class TaxiCluster {
 
 	private static List<Trajectory> trajectories;
+	private static double thetaW = 1000.0;
+	private static double paraW = 1000.0;
+	private static double perpW = 1000.0;
+	private static boolean printDist = false;
 
 	public static void main(String[] args) {
 
@@ -18,8 +24,15 @@ public class TaxiCluster {
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
-		double eps = 0.05;
-		int minPts = 5;
+		// reset the trajectories
+		trajectories.forEach(t -> {
+			t.setCluster(0);
+			t.setVisited(false);
+		});
+
+		double eps = 10.0;
+		int minPts = 15;
+
 		int clusterNum = 1;
 
 		for (Trajectory t : trajectories) {
@@ -39,6 +52,11 @@ public class TaxiCluster {
 		}
 
 		db.updateTrajectory(trajectories);
+		
+		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(), 
+                Collectors.counting()));
+		
+		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
 
 	}
 
@@ -63,8 +81,13 @@ public class TaxiCluster {
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
 		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
 		for (Trajectory x : trajectories) {
-			double dist = calcDTheta(t, x) + calcDPerp(t, x) + calcDPara(t, x);
-			// System.out.println(dist);
+			double dTheta = calcDTheta(t, x);
+			double dPerp = calcDPerp(t, x);
+			double dPara = calcDPara(t, x);
+			double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
+			if (printDist) {
+				System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
+			}
 			if (dist < eps) {
 				neighbors.add(x);
 			}
@@ -99,7 +122,8 @@ public class TaxiCluster {
 		// get Projection of end
 		Point endProj = project(lStart, lEnd, sEnd);
 
-		// System.out.println("Projections: " + startProj.toString() + ", " + endProj.toString());
+		// System.out.println("Projections: " + startProj.toString() + ", " +
+		// endProj.toString());
 
 		// calc distances
 		double startDistance = startProj.distance(lStart);

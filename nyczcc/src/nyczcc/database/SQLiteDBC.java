@@ -1,7 +1,10 @@
 package nyczcc.database;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +21,7 @@ public class SQLiteDBC {
 	    try {
 	      Class.forName("org.sqlite.JDBC");
 	      c = DriverManager.getConnection("jdbc:sqlite:test.db");
-	      System.out.println("Opened database successfully");
+	      //System.out.println("Opened database successfully");
 
 	      stmt = c.createStatement();
 	    } catch ( Exception e ) {
@@ -31,7 +34,7 @@ public class SQLiteDBC {
 		try {
 			stmt.close();
 			c.close();
-			System.out.println("closed database successfully");
+			//System.out.println("closed database successfully");
 		} catch (Exception e ){
 			System.out.println("Failed to close DB Connection!");
 		}
@@ -205,10 +208,10 @@ public class SQLiteDBC {
 				bob.append(" WHERE ROWID=");
 				bob.append(tlist.get(x).getRowID());
 				
-				System.out.println(bob.toString());
+				//System.out.println(bob.toString());
 				
 				stmt.executeUpdate(bob.toString());
-				System.out.println("Succesfully Updated Row: " + tlist.get(x).getRowID());
+				//System.out.println("Succesfully Updated Row: " + tlist.get(x).getRowID());
 				
 			}catch (Exception e)
 			{
@@ -224,14 +227,14 @@ public class SQLiteDBC {
 	{
 		SQLiteDBC db = new SQLiteDBC();
 		db.createTable();
-//		ReadCSV reader = new ReadCSV("/home/jjbreen/Git/NYCZCC/data/yellow_tripdata_2015-01.csv");
-//		try {
-//			reader.importCSVtoDB(db);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		ArrayList<Trajectory> t = db.retrieveRows(1,1);
+		ReadCSV reader = new ReadCSV("data/yellow_tripdata_2015-01.csv");
+		try {
+			reader.importCSVtoDB(db);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*ArrayList<Trajectory> t = db.retrieveRows(1,1);
 		for (int x = 0; x < t.size(); x++)
 		{
 			t.get(x).setVisited(true);
@@ -239,6 +242,6 @@ public class SQLiteDBC {
 		System.out.println(t.get(0));
 		
 		db.updateTrajectory(t);
-		db.retrieveRows(1,1);
+		db.retrieveRows(1,1);*/
 	}
 }

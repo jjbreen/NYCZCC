@@ -144,7 +144,7 @@ public class Trajectory {
 	public double getLength() {
 		return Math.sqrt(
 				Math.pow(plat - dlat, 2) +
-						Math.pow(plong - dlong, 2));
+						Math.pow(plong - dlong, 2)) * 1000;
 	}
 
 }
