@@ -30,16 +30,12 @@ public class displayPicture {
 		    
 		    final XYSeriesCollection data = new XYSeriesCollection();
 		    
-		    final XYSeries series = new XYSeries("Random Data");
-		    series.add(1.0, 500.2);
-		    series.add(5.0, 694.1);
-		    series.add(4.0, 100.0);
-		    series.add(12.5, 734.4);
-		    series.add(17.3, 453.2);
-		    series.add(21.2, 500.2);
-		    series.add(21.9, null);
-		    series.add(25.6, 734.4);
-		    series.add(30.0, 453.2);
+		    for (Trajectory tra : t)
+		    {
+		    	final XYSeries series = new XYSeries(tra.getRowID());
+		    	series.add(tra.getPickUpLatitude(), tra.getPickUpLongitude());
+		    	series.add(tra.getDropOffLatitude(), tra.getDropOffLongitude());
+		    }
 		    
 		    final JFreeChart chart = ChartFactory.createXYLineChart(
 		        "XY Series Demo",
@@ -74,20 +70,10 @@ public class displayPicture {
 	}
 	
 	public void displayPicture(List<Trajectory> t){
-		
-	}
-	
-	/**
-	 * Starting point for the demonstration application.
-	 *
-	 * @param args  ignored.
-	 */
-	public static void main(final String[] args) {
-
-	    final XYSeriesDemo demo = new XYSeriesDemo("XY Series Demo");
+		final XYSeriesDemo demo = new XYSeriesDemo("XY Series Demo", t);
 	    demo.pack();
 	    RefineryUtilities.centerFrameOnScreen(demo);
 	    demo.setVisible(true);
-
 	}
+
 }
