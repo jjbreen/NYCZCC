@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import nyczcc.Point;
 import nyczcc.Trajectory;
 import nyczcc.database.SQLiteDBC;
+import nyczcc.visual.displayPicture;
 
 public class TaxiCluster {
 
@@ -50,6 +51,9 @@ public class TaxiCluster {
 				}
 			}
 		}
+		
+		displayPicture pic = new displayPicture();
+		pic.displayPicture(trajectories);
 
 		db.updateTrajectory(trajectories);
 		

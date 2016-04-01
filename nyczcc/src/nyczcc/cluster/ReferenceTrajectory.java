@@ -31,7 +31,6 @@ public class ReferenceTrajectory {
 							double d = o1 - o2;
 							return d > 0 ? 1 : d < 0 ? -1 : 0;
 						}
-						
 					}).get();
 	
 		double mavgx = x.stream().reduce(0.0, Double::sum) / x.size();

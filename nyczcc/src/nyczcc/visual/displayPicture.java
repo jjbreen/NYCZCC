@@ -5,6 +5,8 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -32,9 +34,17 @@ public class displayPicture {
 		    
 		    for (Trajectory tra : t)
 		    {
+		    	if (tra.getDropOffLatitude() == 0 ||tra.getDropOffLongitude() == 0 ||
+		    		tra.getPickUpLatitude() == 0 || tra.getPickUpLongitude() == 0)
+				{
+					continue;
+				}
+		    	System.out.println("Got Here!");
 		    	final XYSeries series = new XYSeries(tra.getRowID());
 		    	series.add(tra.getPickUpLatitude(), tra.getPickUpLongitude());
 		    	series.add(tra.getDropOffLatitude(), tra.getDropOffLongitude());
+		  
+		    	data.addSeries(series);
 		    }
 		    
 		    final JFreeChart chart = ChartFactory.createXYLineChart(
@@ -43,13 +53,17 @@ public class displayPicture {
 		        "Y", 
 		        data,
 		        PlotOrientation.VERTICAL,
-		        true,
-		        true,
+		        false,
+		        false,
 		        false
 		    );
 
+	        NumberAxis axis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+	        axis.setAutoRangeIncludesZero(false);
+
+		    
 		    final ChartPanel chartPanel = new ChartPanel(chart);
-		    chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+		    chartPanel.setPreferredSize(new java.awt.Dimension(1000, 1000));
 		    setContentPane(chartPanel);
 
 		}
@@ -74,6 +88,7 @@ public class displayPicture {
 	    demo.pack();
 	    RefineryUtilities.centerFrameOnScreen(demo);
 	    demo.setVisible(true);
+	    System.out.println("Got Here 2");
 	}
 
 }
