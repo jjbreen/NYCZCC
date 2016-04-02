@@ -49,6 +49,15 @@ public class Trajectory {
 		this.clusterid = clusterid;
 		this.visited = visited == 0 ? false : true;
 	}
+	
+	public Trajectory(double plat, double plong, double dlat, double dlong, int cluster)
+	{
+		this.plat = plat;
+		this.plong = plong;
+		this.dlat = dlat;
+		this.dlong = dlong;
+		this.clusterid = cluster;
+	}
 
 	public LocalDateTime getPickUpTime() {
 		return pickupt;
@@ -145,6 +154,11 @@ public class Trajectory {
 		return Math.sqrt(
 				Math.pow(plat - dlat, 2) +
 						Math.pow(plong - dlong, 2)) * 1000;
+	}
+	
+	public void setRowID(int r)
+	{
+		id = r;
 	}
 
 }

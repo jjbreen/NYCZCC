@@ -14,13 +14,14 @@ import nyczcc.visual.displayPicture;
 public class TaxiCluster {
 
 	private static List<Trajectory> trajectories;
-	private static double thetaW = 1000.0;
+	private static double thetaW = 2000.0;
 	private static double paraW = 1000.0;
 	private static double perpW = 1000.0;
 	private static boolean printDist = false;
 
 	public static void main(String[] args) {
 
+		//printDist = true;
 		SQLiteDBC db = new SQLiteDBC();
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
@@ -31,8 +32,8 @@ public class TaxiCluster {
 			t.setVisited(false);
 		});
 
-		double eps = 10.0;
-		int minPts = 15;
+		double eps = 20000.0;
+		int minPts = 25;
 
 		int clusterNum = 1;
 
@@ -53,14 +54,33 @@ public class TaxiCluster {
 		}
 		
 		displayPicture pic = new displayPicture();
-		pic.displayPicture(trajectories);
+		pic.displayPicture("Trajectory Plot", trajectories);
+		
+		List<Trajectory> ref = new LinkedList<>();
+		for (Integer x : trajectories.stream().map(z -> z.getCluster()).distinct().collect(Collectors.toCollection(LinkedList::new)))
+		{
+			List<Trajectory> nt = trajectories.stream().filter(z -> z.getCluster() == x && z.getPickUpLatitude() != 0
+					&& z.getPickUpLongitude() != 0 && z.getDropOffLatitude() != 0 && z.getDropOffLongitude() != 0).collect(Collectors.toCollection(LinkedList::new));
+			
+			System.out.println(x);
+			System.out.println(nt.size());
+			System.out.println(nt.get(0));
+			Trajectory r = new ReferenceTrajectory(nt).ref;
+			r.setRowID(x);
+			ref.add(r);
+		}
+		
+		pic.displayPicture("Reference Trajectory Plot", ref);
 
-		db.updateTrajectory(trajectories);
+		//db.updateTrajectory(trajectories);
 		
 		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(), 
                 Collectors.counting()));
 		
 		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
+		
+		//displayPicture pic = new displayPicture();
+		//pic.displayPicture("Trajectory Plot", trajectories);
 
 	}
 
