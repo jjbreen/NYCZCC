@@ -151,9 +151,10 @@ public class Trajectory {
 	}
 
 	public double getLength() {
-		return Math.sqrt(
-				Math.pow(plat - dlat, 2) +
-						Math.pow(plong - dlong, 2)) * 1000;
+//		return Math.sqrt(
+//				Math.pow(plat - dlat, 2) +
+//						Math.pow(plong - dlong, 2)) * 1000;
+		return Math.acos(Math.sin(plat) * Math.sin(dlat) + Math.cos(plat) * Math.cos(dlat) * Math.cos(dlong - plong)) * 1000;
 	}
 	
 	public void setRowID(int r)

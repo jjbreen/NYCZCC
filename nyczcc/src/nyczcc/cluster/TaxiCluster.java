@@ -32,7 +32,7 @@ public class TaxiCluster {
 			t.setVisited(false);
 		});
 
-		double eps = 20000.0;
+		double eps = 0.12;
 		int minPts = 25;
 
 		int clusterNum = 1;
@@ -61,10 +61,10 @@ public class TaxiCluster {
 		{
 			List<Trajectory> nt = trajectories.stream().filter(z -> z.getCluster() == x && z.getPickUpLatitude() != 0
 					&& z.getPickUpLongitude() != 0 && z.getDropOffLatitude() != 0 && z.getDropOffLongitude() != 0).collect(Collectors.toCollection(LinkedList::new));
-			
-			System.out.println(x);
-			System.out.println(nt.size());
-			System.out.println(nt.get(0));
+			if (nt.size() ==0)
+			{
+				continue;
+			}
 			Trajectory r = new ReferenceTrajectory(nt).ref;
 			r.setRowID(x);
 			ref.add(r);
@@ -105,12 +105,13 @@ public class TaxiCluster {
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
 		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
 		for (Trajectory x : trajectories) {
-			double dTheta = calcDTheta(t, x);
-			double dPerp = calcDPerp(t, x);
-			double dPara = calcDPara(t, x);
-			double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
+//			double dTheta = calcDTheta(t, x);
+//			double dPerp = calcDPerp(t, x);
+//			double dPara = calcDPara(t, x);
+			double dist = calcPairWiseDist(t, x, 20);//dTheta * thetaW + dPerp * perpW + dPara * paraW;
 			if (printDist) {
-				System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
+				//System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
+				System.out.println("Dist: " + dist);
 			}
 			if (dist < eps) {
 				neighbors.add(x);
@@ -118,6 +119,31 @@ public class TaxiCluster {
 		}
 
 		return neighbors;
+	}
+	
+	private static double calcPairWiseDist(Trajectory t1, Trajectory t2, int numPoints)
+	{
+		
+		double t1xdisplace = (t1.getDropOffLongitude() - t1.getPickUpLongitude()); 
+		double t1ydisplace = (t1.getDropOffLatitude() - t1.getPickUpLatitude());
+		double t2xdisplace = (t2.getDropOffLongitude() - t2.getPickUpLongitude());
+		double t2ydisplace = (t2.getDropOffLatitude() - t2.getPickUpLatitude());
+		
+		List<Point> t1points = new LinkedList<>();
+		List<Point> t2points = new LinkedList<>();
+		for (int x = 0; x < numPoints; x++)
+		{
+			t1points.add(new Point((t1xdisplace / numPoints) * x + t1.getPickUpLatitude(), (t1ydisplace / numPoints) * x + t1.getPickUpLongitude()));
+			t2points.add(new Point((t2xdisplace / numPoints) * x + t2.getPickUpLatitude(), (t2ydisplace / numPoints) * x + t2.getPickUpLongitude()));
+		}
+		
+		double dist = 0;
+		for (int x = 0; x < t1points.size(); x++)
+		{
+			dist += Math.acos(Math.sin(t1points.get(x).x) * Math.sin(t2points.get(x).x) + Math.cos(t1points.get(x).x) * Math.cos(t2points.get(x).x) * Math.cos(t2points.get(x).y - t1points.get(x).y));
+		}
+		
+		return dist;
 	}
 
 	private static double calcDPara(Trajectory t, Trajectory x) {

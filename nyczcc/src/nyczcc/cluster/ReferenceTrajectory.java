@@ -19,27 +19,20 @@ public class ReferenceTrajectory {
 	{
 		cluster = c;
 		
+		DistanceFun f = new DistanceFun(){
+			@Override
+			public double getDistance(Double x1, Double y1, Double x2, Double y2) {
+				return Math.acos(Math.sin(x1) * Math.sin(x2) + Math.cos(x1) * Math.cos(x2) * Math.cos(y2 - y1));
+			}
+		};
+		
 		Point dropoff = findCenterOfMinDist(c.stream().map(x -> x.getDropOffLatitude()).collect(Collectors.toCollection(ArrayList::new)),
 											c.stream().map(x -> x.getDropOffLongitude()).collect(Collectors.toCollection(ArrayList::new)),
-											new DistanceFun(){
-									
-												@Override
-												public double getDistance(Double x1, Double y1, Double x2, Double y2) {
-													return Math.acos(Math.sin(x1) * Math.sin(x2)) + Math.cos(x1) * Math.cos(x2) + Math.cos(y2 - y1);
-												}
-										
-											});
+											f);
 		
 		Point pickup = findCenterOfMinDist(c.stream().map(x -> x.getPickUpLatitude()).collect(Collectors.toCollection(ArrayList::new)),
 											c.stream().map(x -> x.getPickUpLongitude()).collect(Collectors.toCollection(ArrayList::new)),
-											new DistanceFun(){
-									
-												@Override
-												public double getDistance(Double x1, Double y1, Double x2, Double y2) {
-													return Math.acos(Math.sin(x1) * Math.sin(x2) + Math.cos(x1) * Math.cos(x2) * Math.cos(y2 - y1));
-												}
-										
-											});
+											f);
 		
 		ref = new Trajectory(pickup.x, pickup.y, dropoff.x, dropoff.y, c.get(0).getCluster());
 	}
@@ -90,12 +83,6 @@ public class ReferenceTrajectory {
 	public Point findCenterOfMinDist(List<Double> x1, List<Double> y1, DistanceFun d)
 	{
 		Point bestPoint = findGeographicalMidPoint(x1, y1);
-		
-		if (true)
-		{
-			System.out.println(bestPoint);
-			return bestPoint;
-		}
 		
 		Double distSum = this.getDistFromPointToPlaces(bestPoint, x1, y1, d);
 		
