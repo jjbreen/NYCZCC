@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import nyczcc.Point;
 import nyczcc.Trajectory;
 import nyczcc.database.SQLiteDBC;
-import nyczcc.visual.displayPicture;
+import nyczcc.visual.DisplayPicture;
 
 public class TaxiCluster {
 
@@ -53,7 +53,7 @@ public class TaxiCluster {
 			}
 		}
 		
-		displayPicture pic = new displayPicture();
+		DisplayPicture pic = new DisplayPicture();
 		pic.displayPicture("Trajectory Plot", trajectories);
 		
 		List<Trajectory> ref = new LinkedList<>();
