@@ -113,6 +113,42 @@ public class SQLiteDBC {
 		this.close();
 	}
 	
+	public void insertBatchValues(List<List<String>> dl){
+		this.connect();
+		try{
+			for (int x = 0; x < dl.size(); x++)
+			{
+				List<String> a = dl.get(x);
+				StringBuilder bob = new StringBuilder();
+				bob.append("INSERT INTO ");
+				bob.append(TrajectorySchema.getTableName());
+				bob.append(" ");
+				bob.append(TrajectorySchema.getInsertDBNames());
+				bob.append(" VALUES('");
+				for (int y = 0; y < a.size(); y++)
+				{
+					bob.append(a.get(y));
+					if (y != a.size() -1)
+					{
+						bob.append("','");
+					}
+				}
+				bob.append("')");
+				
+				stmt.addBatch(bob.toString());
+				
+			}
+			stmt.executeBatch();
+		}
+		catch (Exception e)
+		{
+			System.out.println("Failed to insert into table");
+		}
+		
+		
+		this.close();
+	}
+	
 	public void insertValues(HashMap<String, String> dmap)
 	{
 		this.connect();
@@ -177,7 +213,7 @@ public class SQLiteDBC {
 				int visited = rs.getInt("visited");
 				
 				Trajectory t = new Trajectory(rowid, pickupt, dropofft, plat, plong, dlat, dlong, clusterid, visited); 
-				System.out.println(t);
+				//System.out.println(t);
 				tlist.add(t);
 			}
 			
@@ -186,6 +222,51 @@ public class SQLiteDBC {
 			System.out.println(e);
 		}
 		System.out.println("Finished Retrieving!");
+		this.close();
+		return tlist;
+	}
+	
+	public ArrayList<Trajectory> retrieveRows(double plati, double plate, double ploni, double plone)
+	{
+		ArrayList<Trajectory> tlist = new ArrayList<>();
+		this.connect();
+		try{
+			StringBuilder sql = new StringBuilder();
+			sql.append("SELECT rowid, * FROM ");
+			sql.append(TrajectorySchema.getTableName());
+			sql.append(" WHERE plat >= ");
+			sql.append(plati);
+			sql.append(" AND plat <= ");
+			sql.append(plate);
+			sql.append(" AND plong >= ");
+			sql.append(ploni);
+			sql.append(" AND plong <= ");
+			sql.append(plone);
+			
+			ResultSet rs = stmt.executeQuery(sql.toString());
+			while (rs.next())
+			{
+				
+				int rowid = rs.getInt("rowid");
+				double plat = rs.getDouble("plat");
+				double plong = rs.getDouble("plong");
+				double dlat = rs.getDouble("dlat");
+				double dlong = rs.getDouble("dlong");
+				String pickupt = rs.getString("pickupt");
+				String dropofft = rs.getString("dropofft");
+				int clusterid = rs.getInt("clusterid");
+				int visited = rs.getInt("visited");
+				
+				Trajectory t = new Trajectory(rowid, pickupt, dropofft, plat, plong, dlat, dlong, clusterid, visited); 
+				//System.out.println(t);
+				tlist.add(t);
+			}
+			
+		}catch (Exception e){
+			System.out.println("Failed to retrieve values from database");
+			System.out.println(e);
+		}
+	//	System.out.println("Finished Retrieving!");
 		this.close();
 		return tlist;
 	}
@@ -208,6 +289,7 @@ public class SQLiteDBC {
 				bob.append(" WHERE ROWID=");
 				bob.append(tlist.get(x).getRowID());
 				
+				
 				//System.out.println(bob.toString());
 				
 				stmt.executeUpdate(bob.toString());
@@ -221,13 +303,14 @@ public class SQLiteDBC {
 			
 			this.close();
 		}
+		System.out.println("Finished Updating Trajectories");
 	}
 	
 	public static void main(String [] args)
 	{
 		SQLiteDBC db = new SQLiteDBC();
 		db.createTable();
-		ReadCSV reader = new ReadCSV("data/yellow_tripdata_2015-01.csv");
+		ReadCSV reader = new ReadCSV("2015-1-10.csv");
 		try {
 			reader.importCSVtoDB(db);
 		} catch (IOException e) {

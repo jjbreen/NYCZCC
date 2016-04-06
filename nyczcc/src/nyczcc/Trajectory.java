@@ -52,11 +52,18 @@ public class Trajectory {
 	
 	public Trajectory(double plat, double plong, double dlat, double dlong, int cluster)
 	{
+		pickupt = LocalDateTime.now();
+		dropofft = LocalDateTime.now();
+		
+		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); 
+		
 		this.plat = plat;
 		this.plong = plong;
 		this.dlat = dlat;
 		this.dlong = dlong;
 		this.clusterid = cluster;
+		
+		visited = false;
 	}
 
 	public LocalDateTime getPickUpTime() {
@@ -97,6 +104,33 @@ public class Trajectory {
 
 	public String getDatabaseTypes() {
 		return "(pickupt,dropofft,plat,plong,dlat,dlong,clusterid,visited)";
+	}
+	
+	public static String getCSVHeader()
+	{
+		return "pickupt,dropofft,plat,plong,dlat,dlong,clusterid,visited";
+	}
+	
+	public String getCSVRow()
+	{
+		StringBuilder bob = new StringBuilder();
+		bob.append(this.getPickUpTimeString());
+		bob.append(",");
+		bob.append(this.getDropOffTimeString());
+		bob.append(",");
+		bob.append(getPickUpLatitude());
+		bob.append(",");
+		bob.append(getPickUpLongitude());
+		bob.append(",");
+		bob.append(getDropOffLatitude());
+		bob.append(",");
+		bob.append(getDropOffLongitude());
+		bob.append(",");
+		bob.append(getCluster());
+		bob.append(",");
+		bob.append(isVisited());
+		bob.append("\n");
+		return bob.toString();
 	}
 
 	public String getDatabaseValues() {

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import nyczcc.Point;
 import nyczcc.Trajectory;
 import nyczcc.database.SQLiteDBC;
+import nyczcc.database.WriteCSV;
 import nyczcc.visual.displayPicture;
 
 public class TaxiCluster {
@@ -18,21 +19,24 @@ public class TaxiCluster {
 	private static double paraW = 1000.0;
 	private static double perpW = 1000.0;
 	private static boolean printDist = false;
+	
+	static SQLiteDBC db = new SQLiteDBC();
+	static List<Trajectory> visitedList = new LinkedList<>();
 
 	public static void main(String[] args) {
-
+		db.connect();
 		//printDist = true;
 		SQLiteDBC db = new SQLiteDBC();
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
 		// reset the trajectories
-		trajectories.forEach(t -> {
-			t.setCluster(0);
-			t.setVisited(false);
-		});
+//		trajectories.forEach(t -> {
+//			t.setCluster(0);
+//			t.setVisited(false);
+//		});
 
-		double eps = 0.12;
+		double eps = 0.05;
 		int minPts = 25;
 
 		int clusterNum = 1;
@@ -41,6 +45,7 @@ public class TaxiCluster {
 
 			if (!t.isVisited()) {
 				t.setVisited(true);
+				visitedList.add(t);
 
 				Queue<Trajectory> neighbors = getNeighbors(t, eps);
 				if (neighbors.size() < minPts) {
@@ -50,8 +55,14 @@ public class TaxiCluster {
 					t.setCluster(clusterId);
 					expandCluster(neighbors, clusterId, eps, minPts);
 				}
+				
+				db.updateTrajectory(visitedList);
+				visitedList.clear();
 			}
+			
 		}
+		
+		System.out.println("Finished Clustering!");
 		
 		displayPicture pic = new displayPicture();
 		pic.displayPicture("Trajectory Plot", trajectories);
@@ -72,15 +83,15 @@ public class TaxiCluster {
 		
 		pic.displayPicture("Reference Trajectory Plot", ref);
 
-		//db.updateTrajectory(trajectories);
+		db.updateTrajectory(trajectories);
 		
 		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(), 
                 Collectors.counting()));
 		
 		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
 		
-		//displayPicture pic = new displayPicture();
-		//pic.displayPicture("Trajectory Plot", trajectories);
+		new WriteCSV("clustert.csv").writeCSV(trajectories);
+		new WriteCSV("reftrajectories.csv").writeCSV(ref);
 
 	}
 
@@ -90,6 +101,7 @@ public class TaxiCluster {
 			Trajectory t = queue.poll();
 			if (!t.isVisited()) {
 				t.setVisited(true);
+				visitedList.add(t);
 
 				Queue<Trajectory> neighbors = getNeighbors(t, eps);
 				if (neighbors.size() > minPts) {
@@ -104,7 +116,12 @@ public class TaxiCluster {
 
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
 		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
-		for (Trajectory x : trajectories) {
+		
+		List<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.005, t.getPickUpLatitude() + 0.005,
+				t.getPickUpLongitude() - 0.005, t.getPickUpLongitude() + 0.005);
+		
+		
+		for (Trajectory x : nlist) {
 //			double dTheta = calcDTheta(t, x);
 //			double dPerp = calcDPerp(t, x);
 //			double dPara = calcDPara(t, x);
@@ -117,6 +134,7 @@ public class TaxiCluster {
 				neighbors.add(x);
 			}
 		}
+		
 
 		return neighbors;
 	}

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ReadCSV {
 	private String csvLocation;
@@ -19,6 +20,8 @@ public class ReadCSV {
 		String line;
 		boolean first = true;
 		ArrayList<Integer> valmap = new ArrayList<>();
+		List<List<String>> vmap = new ArrayList<>();
+		
 		while ( (line=br.readLine()) != null)
 		{
 		         String[] values = line.split(","); 
@@ -47,10 +50,14 @@ public class ReadCSV {
 		        	 }
 		        	 datmap.add("0");
 		        	 datmap.add("False");
-		        	 System.out.println("Inserting Values: " + datmap);
-		        	 c.insertValues(datmap);
+		        	 //System.out.println("Inserting Values: " + datmap);
+		        	 vmap.add(datmap);
+		        	 //c.insertValues(datmap);
 		         }
 		}
+		
+		c.insertBatchValues(vmap);
+		
 		br.close();
 
 	}
