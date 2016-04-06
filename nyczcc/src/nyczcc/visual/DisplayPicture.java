@@ -20,7 +20,7 @@ import org.jfree.ui.RefineryUtilities;
 import nyczcc.Trajectory;
 
 
-public class displayPicture {
+public class DisplayPicture {
 
 	
 	public class XYSeriesDemo extends ApplicationFrame {

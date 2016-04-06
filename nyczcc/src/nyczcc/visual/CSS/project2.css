@@ -1,0 +1,26 @@
+#calendar
+{
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+    font-size: 14px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    position:absolute;
+    height:98%;
+    top:1%;
+    bottom:1%;
+    left:25%;
+    width:75%;
+}
+
+td.fc-day-number
+{
+    cursor:pointer;
+}
+
