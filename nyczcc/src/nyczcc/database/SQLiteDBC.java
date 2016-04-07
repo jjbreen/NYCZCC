@@ -3,6 +3,7 @@ package nyczcc.database;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -116,29 +117,30 @@ public class SQLiteDBC {
 	public void insertBatchValues(List<List<String>> dl){
 		this.connect();
 		try{
+			StringBuilder bob = new StringBuilder();
+			bob.append("INSERT INTO ");
+			bob.append(TrajectorySchema.getTableName());
+			bob.append(" ");
+			bob.append(TrajectorySchema.getInsertDBNames());
+			bob.append(" VALUES(?,?,?,?,?,?,?,?)");
+
+			c.setAutoCommit(false);
+			PreparedStatement pstmt = c.prepareStatement(bob.toString());
+			
 			for (int x = 0; x < dl.size(); x++)
 			{
 				List<String> a = dl.get(x);
-				StringBuilder bob = new StringBuilder();
-				bob.append("INSERT INTO ");
-				bob.append(TrajectorySchema.getTableName());
-				bob.append(" ");
-				bob.append(TrajectorySchema.getInsertDBNames());
-				bob.append(" VALUES('");
+				
 				for (int y = 0; y < a.size(); y++)
 				{
-					bob.append(a.get(y));
-					if (y != a.size() -1)
-					{
-						bob.append("','");
-					}
+					pstmt.setString(y+1, a.get(y));
 				}
-				bob.append("')");
 				
-				stmt.addBatch(bob.toString());
+				pstmt.addBatch();
 				
 			}
-			stmt.executeBatch();
+			pstmt.executeBatch();
+			c.commit();
 		}
 		catch (Exception e)
 		{
@@ -185,7 +187,7 @@ public class SQLiteDBC {
 		this.close();
 	}
 	
-	public ArrayList<Trajectory> retrieveRows(int from, int to)
+	public List<Trajectory> retrieveRows(int from, int to)
 	{
 		ArrayList<Trajectory> tlist = new ArrayList<>();
 		this.connect();
@@ -310,7 +312,7 @@ public class SQLiteDBC {
 	{
 		SQLiteDBC db = new SQLiteDBC();
 		db.createTable();
-		ReadCSV reader = new ReadCSV("2015-1-10.csv");
+		ReadCSV reader = new ReadCSV("morning_2015-1-10.csv");
 		try {
 			reader.importCSVtoDB(db);
 		} catch (IOException e) {

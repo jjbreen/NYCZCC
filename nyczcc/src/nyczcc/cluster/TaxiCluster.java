@@ -1,5 +1,6 @@
 package nyczcc.cluster;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,14 @@ import nyczcc.visual.DisplayPicture;
 public class TaxiCluster {
 
 	private static List<Trajectory> trajectories;
-	private static double thetaW = 2000.0;
-	private static double paraW = 1000.0;
-	private static double perpW = 1000.0;
+	private static double thetaW = 1;
+	private static double paraW = 1;
+	private static double perpW = 1;
 	private static boolean printDist = false;
 	
 	static SQLiteDBC db = new SQLiteDBC();
 	static List<Trajectory> visitedList = new LinkedList<>();
+	static Map<Integer,Boolean> vMap = new HashMap<>();
 
 	public static void main(String[] args) {
 		db.connect();
@@ -36,16 +38,17 @@ public class TaxiCluster {
 //			t.setVisited(false);
 //		});
 
-		double eps = 0.05;
+		double eps = 1.5;
 		int minPts = 25;
 
 		int clusterNum = 1;
 
 		for (Trajectory t : trajectories) {
 
-			if (!t.isVisited()) {
+			if (!t.isVisited() || vMap.containsKey(t.getRowID())) {
 				t.setVisited(true);
 				visitedList.add(t);
+				vMap.put(t.getRowID(), true);
 
 				Queue<Trajectory> neighbors = getNeighbors(t, eps);
 				if (neighbors.size() < minPts) {
@@ -101,9 +104,10 @@ public class TaxiCluster {
 
 		while (queue.size() > 0) {
 			Trajectory t = queue.poll();
-			if (!t.isVisited()) {
+			if (!t.isVisited() || vMap.containsKey(t.getRowID())) {
 				t.setVisited(true);
 				visitedList.add(t);
+				vMap.put(t.getRowID(), true);
 
 				Queue<Trajectory> neighbors = getNeighbors(t, eps);
 				if (neighbors.size() > minPts) {
@@ -119,15 +123,15 @@ public class TaxiCluster {
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
 		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
 		
-		List<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.005, t.getPickUpLatitude() + 0.005,
-				t.getPickUpLongitude() - 0.005, t.getPickUpLongitude() + 0.005);
+		List<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.001, t.getPickUpLatitude() + 0.001,
+				t.getPickUpLongitude() - 0.001, t.getPickUpLongitude() + 0.001);
 		
 		
 		for (Trajectory x : nlist) {
-//			double dTheta = calcDTheta(t, x);
-//			double dPerp = calcDPerp(t, x);
-//			double dPara = calcDPara(t, x);
-			double dist = calcPairWiseDist(t, x, 20);//dTheta * thetaW + dPerp * perpW + dPara * paraW;
+			double dTheta = calcDTheta(t, x);
+			double dPerp = calcDPerp(t, x);
+			double dPara = calcDPara(t, x);
+			double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
 			if (printDist) {
 				//System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
 				System.out.println("Dist: " + dist);
