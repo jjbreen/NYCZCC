@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import nyczcc.Trajectory;
@@ -187,9 +188,9 @@ public class SQLiteDBC {
 		this.close();
 	}
 	
-	public List<Trajectory> retrieveRows(int from, int to)
+	public LinkedList<Trajectory> retrieveRows(int from, int to)
 	{
-		ArrayList<Trajectory> tlist = new ArrayList<>();
+		LinkedList<Trajectory> tlist = new LinkedList<>();
 		this.connect();
 		try{
 			StringBuilder sql = new StringBuilder();
@@ -228,9 +229,9 @@ public class SQLiteDBC {
 		return tlist;
 	}
 	
-	public ArrayList<Trajectory> retrieveRows(double plati, double plate, double ploni, double plone)
+	public LinkedList<Trajectory> retrieveRows(double plati, double plate, double ploni, double plone)
 	{
-		ArrayList<Trajectory> tlist = new ArrayList<>();
+		LinkedList<Trajectory> tlist = new LinkedList<>();
 		this.connect();
 		try{
 			StringBuilder sql = new StringBuilder();

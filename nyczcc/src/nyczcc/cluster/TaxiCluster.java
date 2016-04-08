@@ -39,13 +39,18 @@ public class TaxiCluster {
 //		});
 
 		double eps = 1.5;
-		int minPts = 25;
+		int minPts = 50;
 
 		int clusterNum = 1;
 
 		for (Trajectory t : trajectories) {
 
-			if (!t.isVisited() || vMap.containsKey(t.getRowID())) {
+			System.out.println(t);
+			if (vMap.containsKey(t.getRowID()))
+			{
+				continue;
+			}
+			if (!t.isVisited()) {
 				t.setVisited(true);
 				visitedList.add(t);
 				vMap.put(t.getRowID(), true);
@@ -101,33 +106,51 @@ public class TaxiCluster {
 	}
 
 	private static void expandCluster(Queue<Trajectory> queue, int clusterId, double eps, int minPts) {
-
+		int csize = 0;
+		
+		Map<Integer,Boolean> queueSet = new HashMap<>();
+		
 		while (queue.size() > 0) {
 			Trajectory t = queue.poll();
-			if (!t.isVisited() || vMap.containsKey(t.getRowID())) {
+			queueSet.put(t.getRowID(), true);
+			
+			if (vMap.containsKey(t.getRowID()))
+			{
+				continue;
+			}
+			if (!t.isVisited()) {
 				t.setVisited(true);
 				visitedList.add(t);
 				vMap.put(t.getRowID(), true);
 
 				Queue<Trajectory> neighbors = getNeighbors(t, eps);
 				if (neighbors.size() > minPts) {
-					queue.addAll(neighbors);
+					while (neighbors.size() > 0)
+					{
+						Trajectory nt = neighbors.poll();
+						if (!queueSet.containsKey(nt.getRowID())){
+							queue.add(nt);
+							queueSet.put(nt.getRowID(), true);
+						}
+					}
 				}
 			}
 			if (t.getCluster() == 0) {
+				System.out.println("Cluster Size: " +  csize + " Queue Size: " + queue.size());
+				csize++;
 				t.setCluster(clusterId);
 			}
 		}
 	}
 
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
-		Queue<Trajectory> neighbors = new LinkedList<Trajectory>();
 		
-		List<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.001, t.getPickUpLatitude() + 0.001,
+		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.001, t.getPickUpLatitude() + 0.001,
 				t.getPickUpLongitude() - 0.001, t.getPickUpLongitude() + 0.001);
 		
-		
-		for (Trajectory x : nlist) {
+		for (int i = nlist.size(); --i >= 0;) {
+			Trajectory x = nlist.get(i);
+			
 			double dTheta = calcDTheta(t, x);
 			double dPerp = calcDPerp(t, x);
 			double dPara = calcDPara(t, x);
@@ -136,13 +159,13 @@ public class TaxiCluster {
 				//System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
 				System.out.println("Dist: " + dist);
 			}
-			if (dist < eps) {
-				neighbors.add(x);
+			if (dist >= eps) {
+				nlist.remove(x);
 			}
 		}
 		
 
-		return neighbors;
+		return nlist;
 	}
 	
 	private static double calcPairWiseDist(Trajectory t1, Trajectory t2, int numPoints)
