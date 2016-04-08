@@ -45,7 +45,6 @@ public class TaxiCluster {
 
 		for (Trajectory t : trajectories) {
 
-			System.out.println(t);
 			if (vMap.containsKey(t.getRowID()))
 			{
 				continue;
@@ -136,7 +135,7 @@ public class TaxiCluster {
 				}
 			}
 			if (t.getCluster() == 0) {
-				System.out.println("Cluster Size: " +  csize + " Queue Size: " + queue.size());
+				//System.out.println("Cluster Size: " +  csize + " Queue Size: " + queue.size());
 				csize++;
 				t.setCluster(clusterId);
 			}
