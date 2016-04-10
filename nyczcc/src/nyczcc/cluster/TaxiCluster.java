@@ -82,7 +82,7 @@ public class TaxiCluster {
 		
 		new WriteCSV("clustert.csv").writeCSV(trajectories);
 		
-		//DisplayPicture pic = new DisplayPicture();
+		DisplayPicture pic = new DisplayPicture();
 
 		//pic.displayPicture("Trajectory Plot", trajectories);
 		
@@ -100,7 +100,7 @@ public class TaxiCluster {
 			ref.add(r);
 		}
 		
-		//pic.displayPicture("Reference Trajectory Plot", ref);
+		pic.displayPicture("Reference Trajectory Plot", ref);
 
 		//db.updateTrajectory(trajectories);
 		
