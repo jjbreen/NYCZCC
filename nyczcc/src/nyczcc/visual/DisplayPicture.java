@@ -25,7 +25,7 @@ public class DisplayPicture {
 	
 	public class XYSeriesDemo extends ApplicationFrame {
 
-		private Color[] palette = new Color[]{Color.BLUE, Color.ORANGE, Color.RED, Color.YELLOW, Color.BLUE, Color.GREEN, Color.PINK};
+		private Color[] palette = new Color[]{Color.BLUE, Color.ORANGE, Color.RED, Color.YELLOW, Color.CYAN, Color.GREEN, Color.PINK};
 		
 		public XYSeriesDemo(final String title, List<Trajectory> t) {
 
@@ -67,7 +67,7 @@ public class DisplayPicture {
 		    XYPlot plot = (XYPlot) chart.getPlot();
 		    for (Integer n : clusterMap.keySet())
 		    {
-		    	plot.getRenderer().setSeriesPaint(n, clusterMap.get(n) == -1 ? Color.BLACK : palette[clusterMap.get(n)]);
+		    	plot.getRenderer().setSeriesPaint(n, clusterMap.get(n) == -1 ? Color.BLACK : palette[clusterMap.get(n) % palette.length]);
 		    }
 		    
 		    // Sets the Trajectories to not include Zero
