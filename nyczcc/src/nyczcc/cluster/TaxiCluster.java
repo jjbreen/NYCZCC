@@ -139,7 +139,7 @@ public class TaxiCluster {
 					}
 				}
 			}
-			if (t.getCluster() == 0) {
+			if (t.getCluster() == 0 || t.getCluster() == -1) {
 				//System.out.println("Cluster Size: " +  csize + " Queue Size: " + queue.size());
 				csize++;
 				t.setCluster(clusterId);
