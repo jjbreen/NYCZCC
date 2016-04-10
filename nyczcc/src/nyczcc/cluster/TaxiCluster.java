@@ -75,9 +75,16 @@ public class TaxiCluster {
 		
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 		
-		DisplayPicture pic = new DisplayPicture();
+		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(), 
+                Collectors.counting()));
+		
+		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
+		
+		new WriteCSV("clustert.csv").writeCSV(trajectories);
+		
+		//DisplayPicture pic = new DisplayPicture();
 
-		pic.displayPicture("Trajectory Plot", trajectories);
+		//pic.displayPicture("Trajectory Plot", trajectories);
 		
 		List<Trajectory> ref = new LinkedList<>();
 		for (Integer x : trajectories.stream().map(z -> z.getCluster()).distinct().collect(Collectors.toCollection(LinkedList::new)))
@@ -93,16 +100,11 @@ public class TaxiCluster {
 			ref.add(r);
 		}
 		
-		pic.displayPicture("Reference Trajectory Plot", ref);
+		//pic.displayPicture("Reference Trajectory Plot", ref);
 
-		db.updateTrajectory(trajectories);
+		//db.updateTrajectory(trajectories);
 		
-		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(), 
-                Collectors.counting()));
 		
-		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
-		
-		new WriteCSV("clustert.csv").writeCSV(trajectories);
 		new WriteCSV("reftrajectories.csv").writeCSV(ref);
 
 	}
