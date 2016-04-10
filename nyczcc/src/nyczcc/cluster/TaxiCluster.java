@@ -33,23 +33,25 @@ public class TaxiCluster {
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
 		// reset the trajectories
-//		trajectories.forEach(t -> {
-//			t.setCluster(0);
-//			t.setVisited(false);
-//		});
+		trajectories.forEach(t -> {
+			t.setCluster(0);
+			t.setVisited(false);
+		});
 
+		System.out.println("Total size: " +  trajectories.size());
 		double eps = 1.5;
 		int minPts = 50;
 
 		int clusterNum = 1;
 
 		for (Trajectory t : trajectories) {
-
+			
 			if (vMap.containsKey(t.getRowID()))
 			{
 				continue;
 			}
 			if (!t.isVisited()) {
+				//System.out.println(t);
 				t.setVisited(true);
 				visitedList.add(t);
 				vMap.put(t.getRowID(), true);
@@ -63,14 +65,15 @@ public class TaxiCluster {
 					expandCluster(neighbors, clusterId, eps, minPts);
 				}
 				
-				db.updateTrajectory(visitedList);
-				visitedList.clear();
+				
 			}
 			
 		}
 		
-
+		db.updateTrajectory(visitedList);
 		System.out.println("Finished Clustering!");
+		
+		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 		
 		DisplayPicture pic = new DisplayPicture();
 
