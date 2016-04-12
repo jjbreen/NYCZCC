@@ -149,8 +149,8 @@ public class TaxiCluster {
 
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
 		
-		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.001, t.getPickUpLatitude() + 0.001,
-				t.getPickUpLongitude() - 0.001, t.getPickUpLongitude() + 0.001);
+		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.005, t.getPickUpLatitude() + 0.005,
+				t.getPickUpLongitude() - 0.005, t.getPickUpLongitude() + 0.005);
 		
 		for (int i = nlist.size(); --i >= 0;) {
 			Trajectory x = nlist.get(i);

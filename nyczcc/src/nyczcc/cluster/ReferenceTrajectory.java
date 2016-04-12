@@ -14,6 +14,7 @@ public class ReferenceTrajectory {
 	private List<Trajectory> cluster;
 	
 	public Trajectory ref;
+	public boolean optimize = true;
 	
 	public ReferenceTrajectory(List<Trajectory> c)
 	{
@@ -83,6 +84,10 @@ public class ReferenceTrajectory {
 	public Point findCenterOfMinDist(List<Double> x1, List<Double> y1, DistanceFun d)
 	{
 		Point bestPoint = findGeographicalMidPoint(x1, y1);
+		
+		if (optimize){
+			return bestPoint;
+		}
 		
 		Double distSum = this.getDistFromPointToPlaces(bestPoint, x1, y1, d);
 		
