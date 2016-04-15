@@ -22,6 +22,9 @@ public class Trajectory {
 	{
 		id = -1;
 		
+		pickupt = pickupt.replace("T", " ");
+		dropofft = dropofft.replace("T", " ");
+
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		this.pickupt = LocalDateTime.parse(pickupt, formatter);
 		this.dropofft = LocalDateTime.parse(dropofft, formatter);
@@ -37,6 +40,9 @@ public class Trajectory {
 	public Trajectory(int rowid, String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, int visited)
 	{
 		id = rowid;
+		
+		pickupt = pickupt.replace("T", " ");
+		dropofft = dropofft.replace("T", " ");
 		
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		this.pickupt = LocalDateTime.parse(pickupt, formatter);
@@ -130,6 +136,7 @@ public class Trajectory {
 		bob.append(",");
 		bob.append(isVisited());
 		bob.append("\n");
+		
 		return bob.toString();
 	}
 
@@ -139,16 +146,21 @@ public class Trajectory {
 
 	public ArrayList<String> getDatabaseValueList() {
 		ArrayList<String> dblist = new ArrayList<>();
-		dblist.add(pickupt.toString());
-		dblist.add(dropofft.toString());
-		dblist.add(plat + "");
-		dblist.add(plong + "");
-		dblist.add(dlat + "");
-		dblist.add(dlong + "");
-		dblist.add(clusterid + "");
-		dblist.add(visited + "");
+		dblist.add(this.getPickUpTimeString());
+		dblist.add(this.getDropOffTimeString());
+		dblist.add(String.valueOf(plat));
+		dblist.add(String.valueOf(plong));
+		dblist.add(String.valueOf(dlat));
+		dblist.add(String.valueOf(dlong));
+		dblist.add(String.valueOf(clusterid));
+		dblist.add(String.valueOf(visited));
 
 		return dblist;
+	}
+	
+	public static String DBNameValuePairBatch()
+	{
+		return "pickupt=?,dropofft=?,plat=?,plong=?,dlat=?,dlong=?,clusterid=?,visited=?";
 	}
 	
 	public String DBNameValuePair()

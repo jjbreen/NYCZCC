@@ -31,6 +31,7 @@ public class TaxiCluster {
 		SQLiteDBC db = new SQLiteDBC();
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
+		db.updateTrajectoryBatch(trajectories);
 
 		// reset the trajectories
 //		trajectories.forEach(t -> {

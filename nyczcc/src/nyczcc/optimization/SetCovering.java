@@ -1,5 +1,6 @@
 package nyczcc.optimization;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -71,6 +72,36 @@ public class SetCovering {
 		}
 		
 		return smap;
+	}
+	
+	public List<SetPartition> optimizeLocation(Map<SetPartition, Set<SetPartition>> hset, int budget){
+		Map<SetPartition, Double> valmap = new HashMap<>();
+		List<SetPartition> pset = new LinkedList<SetPartition>();
+		
+		for (SetPartition s : hset.keySet()){
+			double w = hset.get(s).stream().map(x -> x.getWeight()).reduce(0.0, (a, b) -> a + b);
+			valmap.put(s, w);
+			pset.add(s);
+		}
+		
+		
+		pset.sort(new Comparator<SetPartition>(){
+			@Override
+			public int compare(SetPartition o1, SetPartition o2) {
+				if (valmap.get(o1) - valmap.get(o2) == 0)
+				{
+					return 0;
+				}
+				// TODO Auto-generated method stub
+				return valmap.get(o1) - valmap.get(o2) > 0 ? 1 : -1;
+			}
+		});
+		
+		List<SetPartition> blist = new LinkedList<>();
+		for (int x =0; x< budget; x++){
+			blist.add(pset.get(x));
+		}
+		return blist;
 	}
 	
 	
