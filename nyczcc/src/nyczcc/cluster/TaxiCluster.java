@@ -20,14 +20,14 @@ public class TaxiCluster {
 	private static double paraW = 1;
 	private static double perpW = 1;
 	private static boolean printDist = false;
-	
+
 	static SQLiteDBC db = new SQLiteDBC();
 	static List<Trajectory> visitedList = new LinkedList<>();
-	static Map<Integer,Boolean> vMap = new HashMap<>();
+	static Map<Integer, Boolean> vMap = new HashMap<>();
 
 	public static void main(String[] args) {
 		db.connect();
-		//printDist = true;
+		// printDist = true;
 		SQLiteDBC db = new SQLiteDBC();
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
@@ -37,21 +37,22 @@ public class TaxiCluster {
 //			t.setCluster(0);
 //			t.setVisited(false);
 //		});
+//		
+//		db.updateTrajectory(trajectories);
 
-		System.out.println("Total size: " +  trajectories.size());
-		double eps = 1.5;
+		System.out.println("Total size: " + trajectories.size());
+		double eps = 3.0;
 		int minPts = 50;
 
 		int clusterNum = 1;
 
 		for (Trajectory t : trajectories) {
-			
-			if (vMap.containsKey(t.getRowID()))
-			{
+
+			if (vMap.containsKey(t.getRowID())) {
 				continue;
 			}
 			if (!t.isVisited()) {
-				//System.out.println(t);
+				// System.out.println(t);
 				t.setVisited(true);
 				visitedList.add(t);
 				vMap.put(t.getRowID(), true);
@@ -64,136 +65,133 @@ public class TaxiCluster {
 					t.setCluster(clusterId);
 					expandCluster(neighbors, clusterId, eps, minPts);
 				}
-				
-				
+
 			}
-			
+
 		}
-		
-		db.updateTrajectory(visitedList);
 		System.out.println("Finished Clustering!");
-		
+		System.out.println("Writing To DB");
+		db.updateTrajectory(visitedList);
+		System.out.println("Finished Writing To DB");
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
-		
-		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(), 
-                Collectors.counting()));
-		
+
+		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(),
+				Collectors.counting()));
+
 		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
-		
+
 		new WriteCSV("clustert.csv").writeCSV(trajectories);
-		
+
 		DisplayPicture pic = new DisplayPicture();
 
-		//pic.displayPicture("Trajectory Plot", trajectories);
-		
+		// pic.displayPicture("Trajectory Plot", trajectories);
+
 		List<Trajectory> ref = new LinkedList<>();
-		for (Integer x : trajectories.stream().map(z -> z.getCluster()).distinct().collect(Collectors.toCollection(LinkedList::new)))
-		{
+		for (Integer x : trajectories.stream().map(z -> z.getCluster()).distinct().collect(Collectors.toCollection(LinkedList::new))) {
 			List<Trajectory> nt = trajectories.stream().filter(z -> z.getCluster() == x && z.getPickUpLatitude() != 0
 					&& z.getPickUpLongitude() != 0 && z.getDropOffLatitude() != 0 && z.getDropOffLongitude() != 0).collect(Collectors.toCollection(LinkedList::new));
-			if (nt.size() ==0)
-			{
+			if (nt.size() == 0) {
 				continue;
 			}
 			Trajectory r = new ReferenceTrajectory(nt).ref;
 			r.setRowID(x);
 			ref.add(r);
 		}
-		
+
 		pic.displayPicture("Reference Trajectory Plot", ref);
 
-		//db.updateTrajectory(trajectories);
-		
-		
+		// db.updateTrajectory(trajectories);
+
 		new WriteCSV("reftrajectories.csv").writeCSV(ref);
 
 	}
 
 	private static void expandCluster(Queue<Trajectory> queue, int clusterId, double eps, int minPts) {
 		int csize = 0;
-		
-		Map<Integer,Boolean> queueSet = new HashMap<>();
-		
+
+		if(clusterId == 13){
+			System.out.println("BAD CLUSTER");
+		}
+		Map<Integer, Boolean> queueSet = new HashMap<>();
+
 		while (queue.size() > 0) {
 			Trajectory t = queue.poll();
 			queueSet.put(t.getRowID(), true);
-			
-			if (vMap.containsKey(t.getRowID()))
-			{
-				continue;
-			}
-			if (!t.isVisited()) {
-				t.setVisited(true);
-				visitedList.add(t);
-				vMap.put(t.getRowID(), true);
 
-				Queue<Trajectory> neighbors = getNeighbors(t, eps);
-				if (neighbors.size() > minPts) {
-					while (neighbors.size() > 0)
-					{
-						Trajectory nt = neighbors.poll();
-						if (!queueSet.containsKey(nt.getRowID())){
-							queue.add(nt);
-							queueSet.put(nt.getRowID(), true);
+			if (!vMap.containsKey(t.getRowID())) {
+
+				if (!t.isVisited()) {
+					t.setVisited(true);
+					visitedList.add(t);
+					vMap.put(t.getRowID(), true);
+
+					Queue<Trajectory> neighbors = getNeighbors(t, eps);
+					if (neighbors.size() > minPts) {
+						while (neighbors.size() > 0) {
+							Trajectory nt = neighbors.poll();
+							if (!queueSet.containsKey(nt.getRowID())) {
+								queue.add(nt);
+								queueSet.put(nt.getRowID(), true);
+							}
 						}
 					}
 				}
 			}
 			if (t.getCluster() == 0 || t.getCluster() == -1) {
-				//System.out.println("Cluster Size: " +  csize + " Queue Size: " + queue.size());
+				// System.out.println("Cluster Size: " + csize + " Queue Size: " + queue.size());
 				csize++;
 				t.setCluster(clusterId);
 			}
 		}
+		if(csize == 1){
+			System.out.println("SIZE 1 CLUSTER!!!");
+		}
 	}
 
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
-		
+
 		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.005, t.getPickUpLatitude() + 0.005,
 				t.getPickUpLongitude() - 0.005, t.getPickUpLongitude() + 0.005);
-		
+
 		for (int i = nlist.size(); --i >= 0;) {
 			Trajectory x = nlist.get(i);
-			
+
 			double dTheta = calcDTheta(t, x);
 			double dPerp = calcDPerp(t, x);
 			double dPara = calcDPara(t, x);
 			double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
 			if (printDist) {
-				//System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
+				// System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
 				System.out.println("Dist: " + dist);
 			}
 			if (dist >= eps) {
 				nlist.remove(x);
 			}
 		}
-		
 
 		return nlist;
 	}
-	
-	private static double calcPairWiseDist(Trajectory t1, Trajectory t2, int numPoints)
-	{
-		
-		double t1xdisplace = (t1.getDropOffLongitude() - t1.getPickUpLongitude()); 
+
+	private static double calcPairWiseDist(Trajectory t1, Trajectory t2, int numPoints) {
+
+		double t1xdisplace = (t1.getDropOffLongitude() - t1.getPickUpLongitude());
 		double t1ydisplace = (t1.getDropOffLatitude() - t1.getPickUpLatitude());
 		double t2xdisplace = (t2.getDropOffLongitude() - t2.getPickUpLongitude());
 		double t2ydisplace = (t2.getDropOffLatitude() - t2.getPickUpLatitude());
-		
+
 		List<Point> t1points = new LinkedList<>();
 		List<Point> t2points = new LinkedList<>();
-		for (int x = 0; x < numPoints; x++)
-		{
+		for (int x = 0; x < numPoints; x++) {
 			t1points.add(new Point((t1xdisplace / numPoints) * x + t1.getPickUpLatitude(), (t1ydisplace / numPoints) * x + t1.getPickUpLongitude()));
 			t2points.add(new Point((t2xdisplace / numPoints) * x + t2.getPickUpLatitude(), (t2ydisplace / numPoints) * x + t2.getPickUpLongitude()));
 		}
-		
+
 		double dist = 0;
-		for (int x = 0; x < t1points.size(); x++)
-		{
-			dist += Math.acos(Math.sin(t1points.get(x).x) * Math.sin(t2points.get(x).x) + Math.cos(t1points.get(x).x) * Math.cos(t2points.get(x).x) * Math.cos(t2points.get(x).y - t1points.get(x).y));
+		for (int x = 0; x < t1points.size(); x++) {
+			dist += Math.acos(Math.sin(t1points.get(x).x) * Math.sin(t2points.get(x).x)
+					+ Math.cos(t1points.get(x).x) * Math.cos(t2points.get(x).x) * Math.cos(t2points.get(x).y - t1points.get(x).y));
 		}
-		
+
 		return dist;
 	}
 
