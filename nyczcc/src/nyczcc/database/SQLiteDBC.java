@@ -331,9 +331,10 @@ public class SQLiteDBC {
 	
 	public void updateTrajectory(List<Trajectory> tlist)
 	{
+		this.connect();
 		for (int x = 0; x < tlist.size(); x++)
 		{
-			this.connect();
+			
 			try{
 				if (tlist.get(x).getRowID() == -1){
 					insertValues(tlist.get(x).getDatabaseValueList());
@@ -359,8 +360,9 @@ public class SQLiteDBC {
 				System.out.println(e);
 			}
 			
-			this.close();
+			
 		}
+		this.close();
 		System.out.println("Finished Updating Trajectories");
 	}
 	
