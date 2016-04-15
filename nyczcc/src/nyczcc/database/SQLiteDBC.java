@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import nyczcc.Trajectory;
 
@@ -113,6 +114,60 @@ public class SQLiteDBC {
 			System.out.println("Failed to insert into table");
 		}
 		this.close();
+	}
+	
+	public void updateTrajectoryBatch(List<Trajectory> tlist){
+		this.connect();
+		StringBuilder bob = new StringBuilder();
+		bob.append("UPDATE ");
+		bob.append(TrajectorySchema.getTableName());
+		bob.append(" SET ");
+		bob.append(Trajectory.DBNameValuePairBatch());
+		bob.append(" WHERE ROWID=");
+		bob.append("?");
+		
+		System.out.println(bob.toString());
+		
+		List<Trajectory> failedVal = new LinkedList<>();
+		
+		try{
+			c.setAutoCommit(false);
+			PreparedStatement pstmt = c.prepareStatement(bob.toString());
+		
+			
+			for (int x = 0; x < tlist.size(); x++)
+			{
+
+					if (tlist.get(x).getRowID() == -1){
+						failedVal.add(tlist.get(x));
+						continue;
+					}
+
+					int y = 1;
+					for (String s : tlist.get(x).getDatabaseValueList()){
+						pstmt.setString(y, s);
+						y++;
+					}
+					pstmt.setString(y, String.valueOf(tlist.get(x).getRowID()));
+
+					
+					pstmt.addBatch();
+			}
+			
+			pstmt.executeBatch();
+			c.commit();
+			
+			if (failedVal.size() != 0){
+				insertBatchValues(failedVal.stream().map(x -> x.getDatabaseValueList()).collect(Collectors.toCollection(ArrayList::new)));
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println(e);
+		}
+		
+		this.close();
+		System.out.println("Finished Updating Trajectories");
 	}
 	
 	public void insertBatchValues(List<List<String>> dl){
@@ -310,6 +365,7 @@ public class SQLiteDBC {
 		this.close();
 		System.out.println("Finished Updating Trajectories");
 	}
+	
 	
 	public static void main(String [] args)
 	{
