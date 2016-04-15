@@ -33,12 +33,12 @@ public class TaxiCluster {
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
 		// reset the trajectories
-//		trajectories.forEach(t -> {
-//			t.setCluster(0);
-//			t.setVisited(false);
-//		});
-//		
-//		db.updateTrajectory(trajectories);
+		trajectories.forEach(t -> {
+			t.setCluster(0);
+			t.setVisited(false);
+		});
+
+		db.updateTrajectory(trajectories);
 
 		System.out.println("Total size: " + trajectories.size());
 		double eps = 3.0;
@@ -57,7 +57,7 @@ public class TaxiCluster {
 				visitedList.add(t);
 				vMap.put(t.getRowID(), true);
 
-				Queue<Trajectory> neighbors = getNeighbors(t, eps);
+				Queue<Trajectory> neighbors = getNeighbors(t, eps, minPts);
 				if (neighbors.size() < minPts) {
 					t.setCluster(-1);
 				} else {
@@ -109,7 +109,7 @@ public class TaxiCluster {
 	private static void expandCluster(Queue<Trajectory> queue, int clusterId, double eps, int minPts) {
 		int csize = 0;
 
-		if(clusterId == 13){
+		if (clusterId == 13) {
 			System.out.println("BAD CLUSTER");
 		}
 		Map<Integer, Boolean> queueSet = new HashMap<>();
@@ -125,7 +125,7 @@ public class TaxiCluster {
 					visitedList.add(t);
 					vMap.put(t.getRowID(), true);
 
-					Queue<Trajectory> neighbors = getNeighbors(t, eps);
+					Queue<Trajectory> neighbors = getNeighbors(t, eps, minPts);
 					if (neighbors.size() > minPts) {
 						while (neighbors.size() > 0) {
 							Trajectory nt = neighbors.poll();
@@ -143,33 +143,37 @@ public class TaxiCluster {
 				t.setCluster(clusterId);
 			}
 		}
-		if(csize == 1){
+		if (csize == 1) {
 			System.out.println("SIZE 1 CLUSTER!!!");
 		}
 	}
 
-	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps) {
+	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps, int minPts) {
 
 		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.005, t.getPickUpLatitude() + 0.005,
 				t.getPickUpLongitude() - 0.005, t.getPickUpLongitude() + 0.005);
 
-		for (int i = nlist.size(); --i >= 0;) {
-			Trajectory x = nlist.get(i);
+		if (nlist.size() < minPts) {
+			return new LinkedList<Trajectory>();
+		} else {
+			for (int i = nlist.size(); --i >= 0;) {
+				Trajectory x = nlist.get(i);
 
-			double dTheta = calcDTheta(t, x);
-			double dPerp = calcDPerp(t, x);
-			double dPara = calcDPara(t, x);
-			double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
-			if (printDist) {
-				// System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
-				System.out.println("Dist: " + dist);
+				double dTheta = calcDTheta(t, x);
+				double dPerp = calcDPerp(t, x);
+				double dPara = calcDPara(t, x);
+				double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
+				if (printDist) {
+					// System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
+					System.out.println("Dist: " + dist);
+				}
+				if (dist >= eps) {
+					nlist.remove(x);
+				}
 			}
-			if (dist >= eps) {
-				nlist.remove(x);
-			}
+
+			return nlist;
 		}
-
-		return nlist;
 	}
 
 	private static double calcPairWiseDist(Trajectory t1, Trajectory t2, int numPoints) {
