@@ -38,7 +38,7 @@ public class TaxiCluster {
 			t.setVisited(false);
 		});
 
-		db.updateTrajectory(trajectories);
+		db.updateTrajectoryBatch(trajectories);
 
 		System.out.println("Total size: " + trajectories.size());
 		double eps = 3.0;
@@ -71,7 +71,7 @@ public class TaxiCluster {
 		}
 		System.out.println("Finished Clustering!");
 		System.out.println("Writing To DB");
-		db.updateTrajectory(visitedList);
+		db.updateTrajectoryBatch(visitedList);
 		System.out.println("Finished Writing To DB");
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
@@ -108,10 +108,7 @@ public class TaxiCluster {
 
 	private static void expandCluster(Queue<Trajectory> queue, int clusterId, double eps, int minPts) {
 		int csize = 0;
-
-		if (clusterId == 13) {
-			System.out.println("BAD CLUSTER");
-		}
+		
 		Map<Integer, Boolean> queueSet = new HashMap<>();
 
 		while (queue.size() > 0) {
