@@ -14,6 +14,8 @@ import nyczcc.database.WriteCSV;
 import nyczcc.visual.DisplayPicture;
 
 public class TaxiCluster {
+	
+	private static boolean performClustering = true;
 
 	private static List<Trajectory> trajectories;
 	private static double thetaW = 1;
@@ -32,51 +34,53 @@ public class TaxiCluster {
 		db.connect();
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
-		// reset the trajectories
-		trajectories.forEach(t -> {
-			t.setCluster(0);
-			t.setVisited(false);
-		});
+		if (performClustering) {
+			// reset the trajectories
+			trajectories.forEach(t -> {
+				t.setCluster(0);
+				t.setVisited(false);
+			});
 
-		db.updateTrajectoryBatch(trajectories);
+			db.updateTrajectoryBatch(trajectories);
 
-		System.out.println("Total size: " + trajectories.size());
-		double eps = 3.0;
-		int minPts = 50;
+			System.out.println("Total size: " + trajectories.size());
+			double eps = 3.0;
+			int minPts = 50;
 
-		int clusterNum = 1;
+			int clusterNum = 1;
 
-		for (Trajectory t : trajectories) {
+			for (Trajectory t : trajectories) {
 
-			if (vMap.containsKey(t.getRowID())) {
-				continue;
-			}
-			if (!t.isVisited()) {
-				// System.out.println(t);
-				t.setVisited(true);
-				visitedList.add(t);
-				vMap.put(t.getRowID(), true);
+				if (vMap.containsKey(t.getRowID())) {
+					continue;
+				}
+				if (!t.isVisited()) {
+					// System.out.println(t);
+					t.setVisited(true);
+					visitedList.add(t);
+					vMap.put(t.getRowID(), true);
 
-				Queue<Trajectory> neighbors = getNeighbors(t, eps, minPts);
-				if (neighbors.size() < minPts) {
-					t.setCluster(-1);
-				} else {
-					int clusterId = clusterNum++;
-					t.setCluster(clusterId);
-					expandCluster(neighbors, clusterId, eps, minPts);
+					Queue<Trajectory> neighbors = getNeighbors(t, eps, minPts);
+					if (neighbors.size() < minPts) {
+						t.setCluster(-1);
+					} else {
+						int clusterId = clusterNum++;
+						t.setCluster(clusterId);
+						expandCluster(neighbors, clusterId, eps, minPts);
+					}
+
 				}
 
 			}
-
+			System.out.println("Finished Clustering!");
+			System.out.println("Writing To DB");
+			db.updateTrajectoryBatch(visitedList);
+			System.out.println("Finished Writing To DB");
+			trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 		}
-		System.out.println("Finished Clustering!");
-		System.out.println("Writing To DB");
-		db.updateTrajectoryBatch(visitedList);
-		System.out.println("Finished Writing To DB");
-		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 
-		Map<Integer, Long> results = trajectories.stream().collect(Collectors.groupingBy(p -> p.getCluster(),
-				Collectors.counting()));
+		Map<Integer, Long> results = trajectories.stream()
+				.collect(Collectors.groupingBy(p -> p.getCluster(), Collectors.counting()));
 
 		results.forEach((id, count) -> System.out.println("id: " + id + " count: " + count));
 
@@ -87,9 +91,12 @@ public class TaxiCluster {
 		// pic.displayPicture("Trajectory Plot", trajectories);
 
 		List<Trajectory> ref = new LinkedList<>();
-		for (Integer x : trajectories.stream().map(z -> z.getCluster()).distinct().collect(Collectors.toCollection(LinkedList::new))) {
-			List<Trajectory> nt = trajectories.stream().filter(z -> z.getCluster() == x && z.getPickUpLatitude() != 0
-					&& z.getPickUpLongitude() != 0 && z.getDropOffLatitude() != 0 && z.getDropOffLongitude() != 0).collect(Collectors.toCollection(LinkedList::new));
+		for (Integer x : trajectories.stream().map(z -> z.getCluster()).distinct()
+				.collect(Collectors.toCollection(LinkedList::new))) {
+			List<Trajectory> nt = trajectories.stream()
+					.filter(z -> z.getCluster() == x && z.getPickUpLatitude() != 0 && z.getPickUpLongitude() != 0
+							&& z.getDropOffLatitude() != 0 && z.getDropOffLongitude() != 0)
+					.collect(Collectors.toCollection(LinkedList::new));
 			if (nt.size() == 0) {
 				continue;
 			}
@@ -108,7 +115,7 @@ public class TaxiCluster {
 
 	private static void expandCluster(Queue<Trajectory> queue, int clusterId, double eps, int minPts) {
 		int csize = 0;
-		
+
 		Map<Integer, Boolean> queueSet = new HashMap<>();
 
 		while (queue.size() > 0) {
@@ -135,7 +142,8 @@ public class TaxiCluster {
 				}
 			}
 			if (t.getCluster() == 0 || t.getCluster() == -1) {
-				// System.out.println("Cluster Size: " + csize + " Queue Size: " + queue.size());
+				// System.out.println("Cluster Size: " + csize + " Queue Size: "
+				// + queue.size());
 				csize++;
 				t.setCluster(clusterId);
 			}
@@ -161,7 +169,8 @@ public class TaxiCluster {
 				double dPara = calcDPara(t, x);
 				double dist = dTheta * thetaW + dPerp * perpW + dPara * paraW;
 				if (printDist) {
-					// System.out.println("Dist: " + dist + " :: " + dTheta + "," + dPerp + "," + dPara);
+					// System.out.println("Dist: " + dist + " :: " + dTheta +
+					// "," + dPerp + "," + dPara);
 					System.out.println("Dist: " + dist);
 				}
 				if (dist >= eps) {
@@ -183,14 +192,16 @@ public class TaxiCluster {
 		List<Point> t1points = new LinkedList<>();
 		List<Point> t2points = new LinkedList<>();
 		for (int x = 0; x < numPoints; x++) {
-			t1points.add(new Point((t1xdisplace / numPoints) * x + t1.getPickUpLatitude(), (t1ydisplace / numPoints) * x + t1.getPickUpLongitude()));
-			t2points.add(new Point((t2xdisplace / numPoints) * x + t2.getPickUpLatitude(), (t2ydisplace / numPoints) * x + t2.getPickUpLongitude()));
+			t1points.add(new Point((t1xdisplace / numPoints) * x + t1.getPickUpLatitude(),
+					(t1ydisplace / numPoints) * x + t1.getPickUpLongitude()));
+			t2points.add(new Point((t2xdisplace / numPoints) * x + t2.getPickUpLatitude(),
+					(t2ydisplace / numPoints) * x + t2.getPickUpLongitude()));
 		}
 
 		double dist = 0;
 		for (int x = 0; x < t1points.size(); x++) {
-			dist += Math.acos(Math.sin(t1points.get(x).x) * Math.sin(t2points.get(x).x)
-					+ Math.cos(t1points.get(x).x) * Math.cos(t2points.get(x).x) * Math.cos(t2points.get(x).y - t1points.get(x).y));
+			dist += Math.acos(Math.sin(t1points.get(x).x) * Math.sin(t2points.get(x).x) + Math.cos(t1points.get(x).x)
+					* Math.cos(t2points.get(x).x) * Math.cos(t2points.get(x).y - t1points.get(x).y));
 		}
 
 		return dist;
