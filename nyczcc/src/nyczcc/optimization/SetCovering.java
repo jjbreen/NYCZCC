@@ -313,6 +313,14 @@ public class SetCovering {
 			return leaves;
 		}
 		
+		public static String getCSVHeader(){
+			return "minLat,maxLat,minLon,maxLon,X,Y,ID";
+		}
+		
+		public String writeRow(){
+			return minLat +"," + maxLat + "," + minLon +"," + maxLon +"," + (minLat + maxLat)/2 + ","+ (minLon + maxLon)/2 +","+setNum +"\n";
+		}
+		
 		private boolean containsCoord(double minLat, double maxLat, double minLon, double maxLon, double lat, double lon){
 			return minLat <= lat && maxLat >= lat && minLon <= lon && maxLon >= lon;
 		}

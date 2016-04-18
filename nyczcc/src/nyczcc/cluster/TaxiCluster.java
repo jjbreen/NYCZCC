@@ -125,7 +125,9 @@ public class TaxiCluster {
 		
 		SetCovering s = new SetCovering(clist, 40.64, 40.83, -74.02, -73.78, 0.0001);
 		
-		List<SetPartition> opt = s.getOptimal(10, .005);
+		List<SetPartition> opt = s.getOptimal(5, .005);
+		
+		new WriteCSV("setpartition.csv").writeSetCSV(opt);
 		
 		pic.displayOptimization("Optimization", ref, opt);
 
