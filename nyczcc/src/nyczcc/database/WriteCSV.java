@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import nyczcc.Trajectory;
+import nyczcc.optimization.SetCovering.SetPartition;
 
 public class WriteCSV {
 	
@@ -38,6 +39,30 @@ public class WriteCSV {
         
         System.out.println("Finished Writing Trajectories To: " + csvloc);
 
+	}
+	
+	public void writeSetCSV(List<SetPartition> s)
+	{
+		try {
+			FileWriter f = new FileWriter(csvloc);
+			
+			f.append(SetPartition.getCSVHeader());
+			f.append("\n");
+			
+			for (SetPartition sp : s)
+			{
+				f.append(sp.writeRow());
+			}
+			
+			f.flush();
+			f.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        System.out.println("Finished Writing Trajectories To: " + csvloc);
 	}
 
 }

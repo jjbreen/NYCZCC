@@ -1,21 +1,27 @@
 package nyczcc.cluster;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import nyczcc.Cluster;
 import nyczcc.Point;
 import nyczcc.Trajectory;
 import nyczcc.database.SQLiteDBC;
 import nyczcc.database.WriteCSV;
+import nyczcc.optimization.SetCovering;
+import nyczcc.optimization.SetCovering.SetPartition;
 import nyczcc.visual.DisplayPicture;
 
 public class TaxiCluster {
 	
-	private static boolean performClustering = true;
+	private static boolean performClustering = false;
 
 	private static List<Trajectory> trajectories;
 	private static double thetaW = 1;
@@ -110,6 +116,20 @@ public class TaxiCluster {
 		// db.updateTrajectory(trajectories);
 
 		new WriteCSV("reftrajectories.csv").writeCSV(ref);
+		
+		
+		Set<Cluster> clist = new HashSet<Cluster>();
+		for (Trajectory r : ref){
+			clist.add(new Cluster(trajectories.stream().filter(x -> x.getCluster() == r.getCluster()).collect(Collectors.toCollection(ArrayList::new)), r));
+		}
+		
+		SetCovering s = new SetCovering(clist, 40.64, 40.83, -74.02, -73.78, 0.0001);
+		
+		List<SetPartition> opt = s.getOptimal(5, .005);
+		
+		new WriteCSV("setpartition.csv").writeSetCSV(opt);
+		
+		pic.displayOptimization("Optimization", ref, opt);
 
 	}
 
