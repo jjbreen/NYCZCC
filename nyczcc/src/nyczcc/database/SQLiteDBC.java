@@ -371,7 +371,7 @@ public class SQLiteDBC {
 	{
 		SQLiteDBC db = new SQLiteDBC();
 		db.createTable();
-		ReadCSV reader = new ReadCSV("morning_2015-1-10.csv");
+		ReadCSV reader = new ReadCSV("afternoon_2015-1-10.csv");
 		try {
 			reader.importCSVtoDB(db);
 		} catch (IOException e) {
