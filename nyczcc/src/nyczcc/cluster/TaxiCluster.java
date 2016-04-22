@@ -139,7 +139,7 @@ public class TaxiCluster {
 		System.out.println("Num Trajectories Begin: " + dmv.startPoints.size());
 		System.out.println("Num Trajectories End: " + dmv.endPoints.size());
 		
-		List<Point> point = new ReadCSV("locations.csv").readEnterpriseLocation();
+		List<Point> point = new ReadCSV("locations.csv").readEnterpriseLocation("Enterprise");
 		List<SetPartition> setp = point.stream().map(x -> new SetPartition(x.y , x.x)).collect(Collectors.toCollection(ArrayList::new));
 		
 		System.out.println("---------------------------- Enterprise Validation --------------------------");

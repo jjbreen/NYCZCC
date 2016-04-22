@@ -32,6 +32,9 @@ public class ValidateTesting {
 	// This is how far people are willing to walk to get to this Station (0.005 is around .5 miles)
 	public static double WALK_DISTANCE = 0.005;
 	
+	// Car Brand
+	public static String CAR_BRAND = "enterprise";
+	
 	public static void main(String [] args)
 	{
 		ReadCSV reader = new ReadCSV("afternoon_reftrajectories.csv");
@@ -63,7 +66,7 @@ public class ValidateTesting {
 		
 		pic.displayOptimization("Our Optimization", ref, opt);
 		
-		List<Point> point = new ReadCSV("locations.csv").readEnterpriseLocation();
+		List<Point> point = new ReadCSV("locations.csv").readEnterpriseLocation(CAR_BRAND);
 		List<SetPartition> setp = point.stream().map(x -> new SetPartition(x.y , x.x)).collect(Collectors.toCollection(ArrayList::new));
 		
 		pic.displayOptimization("Their Optimization", ref, setp);

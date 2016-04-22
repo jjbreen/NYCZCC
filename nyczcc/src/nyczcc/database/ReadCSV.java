@@ -18,7 +18,7 @@ public class ReadCSV {
 		csvLocation = loc;
 	}
 	
-	public List<Point> readEnterpriseLocation(){
+	public List<Point> readEnterpriseLocation(String rental){
 		List<Point> pt = new LinkedList<>();
 		try{
 			
@@ -35,7 +35,7 @@ public class ReadCSV {
 				}
 			    String[] values = line.split(",");
 			    
-			    if (values[0].contains("Enterprise")){
+			    if (values[0].toLowerCase().contains(rental.toLowerCase())){
 			    	pt.add(new Point(Double.valueOf(values[2]), Double.valueOf(values[1])));
 			    }
 			}
