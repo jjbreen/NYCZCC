@@ -33,6 +33,11 @@ public class ComputeDistanceMatrix {
 		}
 		trajectories = db.retrieveRows(0, Integer.MAX_VALUE);
 		
+		matrix = new LinkedList<>();
+		for (int x = 0; x < trajectories.size(); x++){
+			matrix.add(new LinkedList<Double>());
+		}
+		
 		tq.addAll(trajectories);
 		
 		ExecutorService executor = Executors.newFixedThreadPool(25);
@@ -168,16 +173,19 @@ public class ComputeDistanceMatrix {
 					return;
 				}
 				List<Double> mrow = new LinkedList<>();
+				for (int x = 0; x < trajectories.size(); x++){
+					mrow.add(0.0);
+				}
 				for (Trajectory tra : trajectories){
 					double dTheta = calcDTheta(t, tra);
 					double dPerp = calcDPerp(t, tra);
 					double dPara = calcDPara(t, tra);
 					double dist = dTheta + dPerp + dPara;
 					
-					mrow.add(tra.getRowID(), dist);
+					mrow.add(tra.getRowID()-1, dist);
 				}
 				synchronized(matrixLock){
-					matrix.add(t.getRowID(), mrow);
+					matrix.add(t.getRowID()-1, mrow);
 				}
 			}
 		}
