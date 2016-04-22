@@ -17,6 +17,8 @@ import nyczcc.Trajectory;
 public class SQLiteDBC {
 	private Connection c;
 	private Statement stmt;
+	
+	public String connect = "jdbc:sqlite:test.db";
 
 	public void connect(){
 		c = null;
@@ -81,6 +83,17 @@ public class SQLiteDBC {
 		}
 		this.close();
 		return exists;
+	}
+	
+	public void deleteAll(){
+		this.connect();
+		try{
+			String sql = "DELETE * FROM '" + TrajectorySchema.getTableName() + "'";
+			ResultSet r = stmt.executeQuery(sql);
+		} catch (Exception e ){
+			System.out.println("Failed to check if table exists");
+		}
+		this.close();
 	}
 	
 	public void insertValues(Trajectory t)

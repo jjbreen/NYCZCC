@@ -14,13 +14,16 @@ public class Trajectory {
 	private int id;
 	private int clusterid;
 	private boolean visited;
+	
+	private static int cid = 0;
 
 	//LocalDateTime Formatter. Use this to parse from and to the database
 	DateTimeFormatter formatter;
 	
 	public Trajectory(String pickupt, String dropofft, double plat, double plong, double dlat, double dlong, int clusterid, int visited)
 	{
-		id = -1;
+		id = cid;
+		cid++;
 		
 		pickupt = pickupt.replace("T", " ");
 		dropofft = dropofft.replace("T", " ");

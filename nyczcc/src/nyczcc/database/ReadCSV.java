@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nyczcc.Point;
+import nyczcc.Trajectory;
 
 public class ReadCSV {
 	private String csvLocation;
@@ -37,6 +38,33 @@ public class ReadCSV {
 			    if (values[0].contains("Enterprise")){
 			    	pt.add(new Point(Double.valueOf(values[2]), Double.valueOf(values[1])));
 			    }
+			}
+		
+		}catch(IOException e){
+			
+		}
+		
+		return pt;
+	}
+	
+	public List<Trajectory> readTrajectoryCSVFile(int addCluster){
+		List<Trajectory> pt = new LinkedList<>();
+		try{
+			
+			
+			BufferedReader br = new BufferedReader(new FileReader(csvLocation));
+			String line;
+			boolean first = true;
+			
+			while ( (line=br.readLine()) != null)
+			{
+				if (first){
+					first = false;
+					continue;
+				}
+			    String[] values = line.split(",");
+			    
+			    pt.add(new Trajectory(values[0], values[1], Double.valueOf(values[2]), Double.valueOf(values[3]), Double.valueOf(values[4]), Double.valueOf(values[5]), Integer.valueOf(values[6]) + addCluster, Boolean.valueOf(values[7]) ? 1 : 0));
 			}
 		
 		}catch(IOException e){
