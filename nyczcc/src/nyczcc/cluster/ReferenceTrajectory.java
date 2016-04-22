@@ -112,11 +112,13 @@ public class ReferenceTrajectory {
 				{
 					distSum = nDist;
 					bestPoint = check.get(x);
-					td = Math.PI;
+					td = td * 2;
 				}
 			}
 			td /= 2;
 		}
+		
+		System.out.println("Finished One!");
 		
 		return bestPoint;
 	}

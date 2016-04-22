@@ -48,8 +48,6 @@ public class SetCovering {
 				continue;
 			}
 			
-			System.out.println(c.tlist.size());
-			
 			partPickup.setWeight(partPickup.getWeight() + c.tlist.size());
 			
 			SetPartition partDropoff = root.findNode(ref.getDropOffLatitude(), ref.getDropOffLongitude());
@@ -147,6 +145,20 @@ public class SetCovering {
 		public double minLat, maxLat, minLon, maxLon;
 		
 		private boolean alt;
+		
+		public SetPartition(double lat, double lon){
+			alt = true;
+			left = null;
+			right = null;
+			
+			setNum = numSets;
+			numSets++;
+			
+			minLat = lat;
+			maxLat = lat;
+			minLon = lon;
+			maxLon = lon;
+		}
 		
 		public SetPartition(double minLat, double maxLat, double minLon, double maxLon, double minArea)
 		{
@@ -253,9 +265,6 @@ public class SetCovering {
 		}
 		
 		public void setWeight(double w){
-			
-			System.out.println("YAYYY");
-			
 			weight = w;
 		}
 		

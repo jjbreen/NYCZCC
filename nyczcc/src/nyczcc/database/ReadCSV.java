@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import nyczcc.Point;
 
 public class ReadCSV {
 	private String csvLocation;
@@ -12,6 +15,35 @@ public class ReadCSV {
 	public ReadCSV(String loc)
 	{
 		csvLocation = loc;
+	}
+	
+	public List<Point> readEnterpriseLocation(){
+		List<Point> pt = new LinkedList<>();
+		try{
+			
+			
+			BufferedReader br = new BufferedReader(new FileReader(csvLocation));
+			String line;
+			boolean first = true;
+			
+			while ( (line=br.readLine()) != null)
+			{
+				if (first){
+					first = false;
+					continue;
+				}
+			    String[] values = line.split(",");
+			    
+			    if (values[0].contains("Enterprise")){
+			    	pt.add(new Point(Double.valueOf(values[2]), Double.valueOf(values[1])));
+			    }
+			}
+		
+		}catch(IOException e){
+			
+		}
+		
+		return pt;
 	}
 	
 	public void importCSVtoDB(SQLiteDBC c) throws IOException

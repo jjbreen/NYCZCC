@@ -13,10 +13,12 @@ import java.util.stream.Collectors;
 import nyczcc.Cluster;
 import nyczcc.Point;
 import nyczcc.Trajectory;
+import nyczcc.database.ReadCSV;
 import nyczcc.database.SQLiteDBC;
 import nyczcc.database.WriteCSV;
 import nyczcc.optimization.SetCovering;
 import nyczcc.optimization.SetCovering.SetPartition;
+import nyczcc.validation.DistanceMetricValidator;
 import nyczcc.visual.DisplayPicture;
 
 public class TaxiCluster {
@@ -123,14 +125,31 @@ public class TaxiCluster {
 			clist.add(new Cluster(trajectories.stream().filter(x -> x.getCluster() == r.getCluster()).collect(Collectors.toCollection(ArrayList::new)), r));
 		}
 		
-		SetCovering s = new SetCovering(clist, 40.64, 40.83, -74.02, -73.78, 0.0001);
+		SetCovering s = new SetCovering(clist, 40.64, 40.83, -74.02, -73.78, 0.00001);
 		
-		List<SetPartition> opt = s.getOptimal(5, .005);
+		List<SetPartition> opt = s.getOptimal(33, .001);
 		
 		new WriteCSV("setpartition.csv").writeSetCSV(opt);
 		
 		pic.displayOptimization("Optimization", ref, opt);
-
+		
+		System.out.println("---------------------------- Self Validation ------------------------------");
+		DistanceMetricValidator dmv = new DistanceMetricValidator(trajectories, opt.stream().map(x -> new Point((x.minLat + x.maxLat)/2, (x.minLon + x.maxLon)/2)).collect(Collectors.toCollection(ArrayList::new)));
+		System.out.println("Num Valid Users: " + dmv.sortValidation(.005).size());
+		System.out.println("Num Trajectories Begin: " + dmv.startPoints.size());
+		System.out.println("Num Trajectories End: " + dmv.endPoints.size());
+		
+		List<Point> point = new ReadCSV("locations.csv").readEnterpriseLocation();
+		List<SetPartition> setp = point.stream().map(x -> new SetPartition(x.y , x.x)).collect(Collectors.toCollection(ArrayList::new));
+		
+		System.out.println("---------------------------- Enterprise Validation --------------------------");
+		System.out.println("Enterprise Size: " + setp.size());
+		pic.displayOptimization("Optimization", ref, setp);
+		dmv = new DistanceMetricValidator(trajectories, setp.stream().map(x -> new Point((x.minLat + x.maxLat)/2, (x.minLon + x.maxLon)/2)).collect(Collectors.toCollection(ArrayList::new)));
+		System.out.println("Num Valid Users: " + dmv.sortValidation(.005).size());
+		System.out.println("Num Trajectories Begin: " + dmv.startPoints.size());
+		System.out.println("Num Trajectories End: " + dmv.endPoints.size());
+		
 	}
 
 	private static void expandCluster(Queue<Trajectory> queue, int clusterId, double eps, int minPts) {

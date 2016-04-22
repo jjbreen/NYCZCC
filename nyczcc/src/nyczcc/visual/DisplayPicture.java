@@ -149,7 +149,6 @@ public class DisplayPicture {
 		    for (int x = 0; x < p.size(); x++){
 		    	renderer.setSeriesShape(rid - x - 1, cross);
 		    	
-		    	System.out.println("WHOO");
 		    }
 		    
 		    XYLineAndShapeRenderer r2 =
