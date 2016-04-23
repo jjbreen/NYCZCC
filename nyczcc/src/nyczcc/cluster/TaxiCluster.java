@@ -36,6 +36,7 @@ public class TaxiCluster {
 	static Map<Integer, Boolean> vMap = new HashMap<>();
 
 	public static void main(String[] args) {
+			
 		db.connect();
 		// printDist = true;
 		SQLiteDBC db = new SQLiteDBC();
@@ -52,8 +53,8 @@ public class TaxiCluster {
 			db.updateTrajectoryBatch(trajectories);
 
 			System.out.println("Total size: " + trajectories.size());
-			double eps = 3.0;
-			int minPts = 50;
+			double eps = 3.5;
+			int minPts = 100;
 
 			int clusterNum = 1;
 
@@ -194,8 +195,8 @@ public class TaxiCluster {
 
 	private static Queue<Trajectory> getNeighbors(Trajectory t, Double eps, int minPts) {
 
-		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.005, t.getPickUpLatitude() + 0.005,
-				t.getPickUpLongitude() - 0.005, t.getPickUpLongitude() + 0.005);
+		LinkedList<Trajectory> nlist = db.retrieveRows(t.getPickUpLatitude() - 0.0025, t.getPickUpLatitude() + 0.0025,
+				t.getPickUpLongitude() - 0.0025, t.getPickUpLongitude() + 0.0025);
 
 		if (nlist.size() < minPts) {
 			return new LinkedList<Trajectory>();
