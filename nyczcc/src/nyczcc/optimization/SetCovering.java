@@ -48,7 +48,7 @@ public class SetCovering {
 				continue;
 			}
 			
-			partPickup.setWeight(partPickup.getWeight() + c.tlist.size());
+			partPickup.setWeight(partPickup.getWeight() + c.tlist.size() * 1);
 			
 			SetPartition partDropoff = root.findNode(ref.getDropOffLatitude(), ref.getDropOffLongitude());
 			
@@ -56,7 +56,25 @@ public class SetCovering {
 				continue;
 			}
 			
-			partDropoff.setWeight(partDropoff.getWeight() + c.tlist.size());
+			partDropoff.setWeight(partDropoff.getWeight() + c.tlist.size() * 1);
+			
+			for (Trajectory t : c.tlist){
+				SetPartition tPickup = root.findNode(t.getPickUpLatitude(), t.getPickUpLongitude());
+				
+				if (tPickup == null){
+					continue;
+				}
+				
+				tPickup.setWeight(tPickup.getWeight() + 1);
+				
+				SetPartition tDropoff = root.findNode(t.getDropOffLatitude(), t.getDropOffLongitude());
+				
+				if (tDropoff == null){
+					continue;
+				}
+				
+				tDropoff.setWeight(tDropoff.getWeight() + 1);
+			}
 		}
 	}
 	

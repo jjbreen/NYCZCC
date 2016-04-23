@@ -26,28 +26,28 @@ public class ValidateTesting {
 	
 	/* -------------------------- Change These Parameters -------------------------*/
 	public static double AREA_PARTITION_SIZE = 0.00001;
-	public static int NUMBER_HUBS = 33;
-	public static double COVER_RADIUS = 0.001;
+	public static int NUMBER_HUBS = 8;
+	public static double COVER_RADIUS = 0.005;
 
 	// This is how far people are willing to walk to get to this Station (0.005 is around .5 miles)
 	public static double WALK_DISTANCE = 0.005;
 	
 	// Car Brand
-	public static String CAR_BRAND = "enterprise";
+	public static String CAR_BRAND = "avis";
 	
 	public static void main(String [] args)
 	{
-		//ReadCSV reader = new ReadCSV("afternoon_reftrajectories.csv");
+		ReadCSV reader = new ReadCSV("afternoon_reftrajectories.csv");
 		ReadCSV reader2 = new ReadCSV("morning_reftrajectories.csv");
 		
-		//ReadCSV reader3 = new ReadCSV("afternoon_trajectories.csv");
+		ReadCSV reader3 = new ReadCSV("afternoon_trajectories.csv");
 		ReadCSV reader4 = new ReadCSV("morning_trajectories.csv");
 	
-		List<Trajectory> ref = reader2.readTrajectoryCSVFile(0);
+		List<Trajectory> ref = reader.readTrajectoryCSVFile(0);
 		
-		//ref.addAll(reader2.readTrajectoryCSVFile(1000));
-		List<Trajectory> trajectories = reader4.readTrajectoryCSVFile(0);
-		//trajectories.addAll(reader4.readTrajectoryCSVFile(1000));
+		ref.addAll(reader2.readTrajectoryCSVFile(1000));
+		List<Trajectory> trajectories = reader3.readTrajectoryCSVFile(0);
+		trajectories.addAll(reader4.readTrajectoryCSVFile(1000));
 		
 		
 		pic.displayPicture("Reference Trajectory Plot", ref);
