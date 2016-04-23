@@ -37,17 +37,17 @@ public class ValidateTesting {
 	
 	public static void main(String [] args)
 	{
-		ReadCSV reader = new ReadCSV("afternoon_reftrajectories.csv");
+		//ReadCSV reader = new ReadCSV("afternoon_reftrajectories.csv");
 		ReadCSV reader2 = new ReadCSV("morning_reftrajectories.csv");
 		
-		ReadCSV reader3 = new ReadCSV("afternoon_trajectories.csv");
+		//ReadCSV reader3 = new ReadCSV("afternoon_trajectories.csv");
 		ReadCSV reader4 = new ReadCSV("morning_trajectories.csv");
 	
-		List<Trajectory> ref = reader.readTrajectoryCSVFile(0);
+		List<Trajectory> ref = reader2.readTrajectoryCSVFile(0);
 		
-		ref.addAll(reader2.readTrajectoryCSVFile(1000));
-		List<Trajectory> trajectories = reader3.readTrajectoryCSVFile(0);
-		trajectories.addAll(reader4.readTrajectoryCSVFile(1000));
+		//ref.addAll(reader2.readTrajectoryCSVFile(1000));
+		List<Trajectory> trajectories = reader4.readTrajectoryCSVFile(0);
+		//trajectories.addAll(reader4.readTrajectoryCSVFile(1000));
 		
 		
 		pic.displayPicture("Reference Trajectory Plot", ref);
@@ -74,6 +74,7 @@ public class ValidateTesting {
 		
 		System.out.println("---------------------------- Self Validation ------------------------------");
 		DistanceMetricValidator dmv = new DistanceMetricValidator(trajectories, opt.stream().map(x -> new Point((x.minLat + x.maxLat)/2, (x.minLon + x.maxLon)/2)).collect(Collectors.toCollection(ArrayList::new)));
+		System.out.println("Num Hubs: " + NUMBER_HUBS);
 		System.out.println("Num Valid Users: " + dmv.sortValidation(WALK_DISTANCE).size());
 		System.out.println("Num Trajectories Begin: " + dmv.startPoints.size());
 		System.out.println("Num Trajectories End: " + dmv.endPoints.size());
